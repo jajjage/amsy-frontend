@@ -1,16 +1,16 @@
 "use client";
 
-import { useAuthContext } from "@/context/AuthContext";
-import { useRequestResellerUpgrade } from "@/hooks/useReseller";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuthContext } from "@/context/AuthContext";
+import { useRequestResellerUpgrade } from "@/hooks/useReseller";
+import { useState } from "react";
 
 interface BecomeResellerModalProps {
   open: boolean;
