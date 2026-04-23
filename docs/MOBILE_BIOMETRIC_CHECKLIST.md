@@ -96,7 +96,7 @@ Quick reference for mobile engineers implementing biometric features to match we
 - [ ] Private key stored in AndroidKeyStore with biometric authentication required
 - [ ] `Signature.getInstance("SHA256withECDSA")` used for signing
 - [ ] Challenge response includes `clientDataJSON`, `authenticatorData`, `signature`
-- [ ] Key alias: `com.safzan.biometric.key` (or your app's domain)
+- [ ] Key alias: `com.amsy.biometric.key` (or your app's domain)
 - [ ] Private key requires biometric unlock to use
 
 ### API Response Handling

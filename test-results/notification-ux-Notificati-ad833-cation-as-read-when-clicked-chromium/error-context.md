@@ -7,10 +7,10 @@
         - generic [ref=e3]:
             - banner [ref=e4]:
                 - generic [ref=e5]:
-                    - link "safzan Data Sub safzan Data Sub" [ref=e7] [cursor=pointer]:
+                    - link "amsy Data Sub amsy Data Sub" [ref=e7] [cursor=pointer]:
                         - /url: /
-                        - img "safzan Data Sub" [ref=e8]
-                        - generic [ref=e9]: safzan Data Sub
+                        - img "amsy Data Sub" [ref=e8]
+                        - generic [ref=e9]: amsy Data Sub
                     - navigation "Main" [ref=e11]:
                         - list [ref=e13]:
                             - listitem [ref=e14]:
@@ -63,7 +63,7 @@
                 - generic [ref=e55]:
                     - generic [ref=e56]:
                         - generic [ref=e57]:
-                            - heading "safzan Data Sub" [level=3] [ref=e58]
+                            - heading "amsy Data Sub" [level=3] [ref=e58]
                             - paragraph [ref=e59]: Your one-stop shop for data, airtime, and bill payments in Nigeria.
                             - generic [ref=e60]:
                                 - link [ref=e61] [cursor=pointer]:
@@ -105,7 +105,7 @@
                                 - listitem [ref=e91]:
                                     - link "Privacy Policy" [ref=e92] [cursor=pointer]:
                                         - /url: "#"
-                    - paragraph [ref=e94]: © 2025 safzan Data Sub. All Rights Reserved.
+                    - paragraph [ref=e94]: © 2025 amsy Data Sub. All Rights Reserved.
     - generic [ref=e95]:
         - img [ref=e97]
         - button "Open Tanstack query devtools" [ref=e145] [cursor=pointer]:

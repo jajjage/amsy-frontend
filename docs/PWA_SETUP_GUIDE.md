@@ -1,6 +1,6 @@
 # PWA (Progressive Web App) Setup Guide
 
-Your safzan Data app is now a fully functional PWA! 🎉
+Your amsy Data app is now a fully functional PWA! 🎉
 
 ## What's Implemented
 
@@ -154,7 +154,7 @@ Edit `public/manifest.json`:
 Edit `public/firebase-messaging-sw.js`:
 
 ```javascript
-const CACHE_NAME = "safzan-data-v2"; // Increment version to clear old cache
+const CACHE_NAME = "amsy-data-v2"; // Increment version to clear old cache
 const STATIC_ASSETS = [...]; // Add/remove assets to cache
 ```
 
@@ -213,7 +213,7 @@ const STATIC_ASSETS = [...]; // Add/remove assets to cache
 - Check Service Worker status in DevTools
 - Verify cache contents in Storage tab
 - Check Network tab for failed requests
-- Clear cache: `caches.delete('safzan-data-v1')`
+- Clear cache: `caches.delete('amsy-data-v1')`
 
 ### Icons not showing:
 

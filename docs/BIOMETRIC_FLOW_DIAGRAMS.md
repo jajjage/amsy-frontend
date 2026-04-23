@@ -4,7 +4,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     safzan DATA APP                              │
+│                     amsy DATA APP                              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐  │
@@ -94,7 +94,7 @@ User Initiates Purchase (Buy Airtime)
     ↓
 Response: {
   challenge: "base64_challenge_xyz",
-  rpId: "safzan-data.com",
+  rpId: "amsy-data.com",
   allowCredentials: [...],
   userVerification: "preferred"
 }
@@ -421,7 +421,7 @@ For Transaction Biometric:
 ```json
 {
   "challenge": "dG9udHlscWJkdGRkZHliaWdidWhyYnl0YXJidXJ0",
-  "rpId": "safzan-data.com",
+  "rpId": "amsy-data.com",
   "allowCredentials": [
     {
       "id": "Ym9iYmJib2JiYm9iYg==",

@@ -106,4 +106,4 @@ Requires **Bearer Token** (User must be logged in).
 
 ## 4. Visual Inspiration (Copy)
 
-> "Turn your network into net worth. Join the safzan Data Reseller program today and start earning on every transaction."
+> "Turn your network into net worth. Join the amsy Data Reseller program today and start earning on every transaction."

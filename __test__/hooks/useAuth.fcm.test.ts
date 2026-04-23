@@ -37,7 +37,7 @@ describe("Auth Hooks - FCM Integration", () => {
     isVerified: true,
     twoFactorEnabled: false,
     accountNumber: "ACC123",
-    providerName: "safzan",
+    providerName: "amsy",
     balance: "1000",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

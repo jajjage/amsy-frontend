@@ -1,6 +1,6 @@
 # Pricing Calculation Guide
 
-This document explains how product prices are calculated and displayed to users in the safzan platform.
+This document explains how product prices are calculated and displayed to users in the amsy platform.
 
 ## Overview
 

@@ -1,6 +1,6 @@
 # Admin API Guide
 
-This document provides a comprehensive guide to the admin API endpoints available in the safzan Data backend system. This guide is designed for frontend developers to understand how to interact with the admin endpoints.
+This document provides a comprehensive guide to the admin API endpoints available in the amsy Data backend system. This guide is designed for frontend developers to understand how to interact with the admin endpoints.
 
 ## Table of Contents
 

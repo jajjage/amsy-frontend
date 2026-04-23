@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document establishes the **standard pattern** for developing features and organizing documentation in the safzan Data Frontend codebase. All new features **MUST** follow this exact structure.
+This document establishes the **standard pattern** for developing features and organizing documentation in the amsy Data Frontend codebase. All new features **MUST** follow this exact structure.
 
 ---
 
@@ -21,7 +21,7 @@ This document establishes the **standard pattern** for developing features and o
 ### Root Organization
 
 ```
-safzan-data-frontend/
+amsy-data-frontend/
 ├── src/
 │   ├── components/
 │   │   └── features/

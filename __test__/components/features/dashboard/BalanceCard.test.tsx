@@ -50,7 +50,7 @@ describe("BalanceCard", () => {
     balance: 5000.5,
     accountName: "John Doe",
     accountNumber: "1234567890",
-    providerName: "Safzan Bank",
+    providerName: "amsy Bank",
   };
 
   it("renders balance correctly when visible", () => {

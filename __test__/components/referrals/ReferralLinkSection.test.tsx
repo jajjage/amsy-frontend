@@ -1,8 +1,8 @@
 import { ReferralLinkSection } from "@/components/features/referrals/referral-link-section";
 import {
-  useDeactivateReferralLink,
-  useReferralLink,
-  useRegenerateReferralCode,
+    useDeactivateReferralLink,
+    useReferralLink,
+    useRegenerateReferralCode,
 } from "@/hooks/useReferrals";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -39,9 +39,9 @@ const createWrapper = () => {
 
 describe("ReferralLinkSection", () => {
   const mockLinkData = {
-    referralLink: "https://safzan.data/register?ref=USER123",
+    referralLink: "https://amsy.data/register?ref=USER123",
     referralCode: "USER123",
-    sharingMessage: "Join me on Safzan Data!",
+    sharingMessage: "Join me on amsy Data!",
     qrCodeUrl: "https://example.com/qr.png",
   };
 

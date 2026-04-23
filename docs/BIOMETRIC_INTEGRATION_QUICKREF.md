@@ -183,7 +183,7 @@ biometricPrompt.authenticate(promptInfo)
 
 // Step 3 (in onAuthenticationSucceeded): Sign challenge
 val keyStore = KeyStore.getInstance("AndroidKeyStore")
-val privateKey = keyStore.getKey("com.safzan.biometric.key")
+val privateKey = keyStore.getKey("com.amsy.biometric.key")
 
 val signature = Signature.getInstance("SHA256withECDSA")
 signature.initSign(privateKey)
@@ -230,7 +230,7 @@ val topup = apiClient.post(
 GET /biometric/register/options
 Response: {
   "challenge": "base64_string",
-  "rp": { "name": "safzan", "id": "safzan-data.com" },
+  "rp": { "name": "amsy", "id": "amsy-data.com" },
   "user": { "id": "user_id", "name": "email@example.com", "displayName": "User Name" },
   "pubKeyCredParams": [{ "alg": -7, "type": "public-key" }],
   "attestation": "direct",
@@ -266,7 +266,7 @@ Response: {
 GET /biometric/auth/options
 Response: {
   "challenge": "base64_challenge",
-  "rpId": "safzan-data.com",
+  "rpId": "amsy-data.com",
   "allowCredentials": [
     {
       "id": "base64_cred_id",

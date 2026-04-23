@@ -163,7 +163,7 @@ F5 or Cmd+R to reload
 ✅ No errors in console
 
 # Check Cache Storage:
-✅ "safzan-data-v1" cache exists
+✅ "amsy-data-v1" cache exists
 ✅ Contains 3 items (/, manifest.json, logo.svg)
 ```
 

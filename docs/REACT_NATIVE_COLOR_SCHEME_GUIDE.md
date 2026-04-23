@@ -1,6 +1,6 @@
-# safzan Color Scheme Guide for React Native
+# amsy Color Scheme Guide for React Native
 
-This guide provides the complete color palette extracted from the safzan web application, formatted for use in React Native mobile development.
+This guide provides the complete color palette extracted from the amsy web application, formatted for use in React Native mobile development.
 
 ---
 
@@ -18,7 +18,7 @@ This guide provides the complete color palette extracted from the safzan web app
 
 ## Overview
 
-The safzan app uses a **warm, golden primary color palette** with a **cool blue-gray secondary palette**. The design supports both **light** and **dark** themes with carefully crafted color relationships.
+The amsy app uses a **warm, golden primary color palette** with a **cool blue-gray secondary palette**. The design supports both **light** and **dark** themes with carefully crafted color relationships.
 
 ### Brand Colors at a Glance
 
@@ -50,7 +50,7 @@ const lightColors = {
   popoverForeground: "hsl(240, 10%, 20%)", // #2E2E33
 
   // Primary (Brand Color - Golden/Orange)
-  primary: "hsl(39, 80%, 50%)", // #E69E19 - safzan Gold
+  primary: "hsl(39, 80%, 50%)", // #E69E19 - amsy Gold
   primaryForeground: "hsl(39, 100%, 98%)", // #FFFCF5 - Light cream
 
   // Secondary
@@ -127,7 +127,7 @@ const darkColors = {
   popoverForeground: "hsl(39, 90%, 90%)", // #FCF3E1
 
   // Primary (Brand Color - Same as Light)
-  primary: "hsl(39, 80%, 50%)", // #E69E19 - safzan Gold
+  primary: "hsl(39, 80%, 50%)", // #E69E19 - amsy Gold
   primaryForeground: "hsl(39, 100%, 98%)", // #FFFCF5
 
   // Secondary
@@ -192,9 +192,9 @@ Create a file `src/theme/colors.ts`:
 
 ```typescript
 /**
- * safzan App Color Scheme
+ * amsy App Color Scheme
  *
- * This file contains the complete color palette for the safzan app,
+ * This file contains the complete color palette for the amsy app,
  * extracted from the web application for consistency across platforms.
  *
  * @module theme/colors
@@ -231,7 +231,7 @@ export const lightColors = {
   popover: "#FAFAFA",
   popoverForeground: "#2E2E33",
 
-  // Primary (safzan Gold)
+  // Primary (amsy Gold)
   primary: "#E69E19",
   primaryForeground: "#FFFCF5",
   primaryLight: "#F4B84D", // Lighter variant for pressed states
@@ -317,7 +317,7 @@ export const darkColors = {
   popover: "#182125",
   popoverForeground: "#FCF3E1",
 
-  // Primary (safzan Gold)
+  // Primary (amsy Gold)
   primary: "#E69E19",
   primaryForeground: "#FFFCF5",
   primaryLight: "#F4B84D",
@@ -576,7 +576,7 @@ const ExampleCard: React.FC = () => {
       }
     ]}>
       <Text style={[styles.title, { color: colors.cardForeground }]}>
-        Welcome to safzan
+        Welcome to amsy
       </Text>
       <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
         Your financial companion
@@ -772,4 +772,4 @@ src/
 ---
 
 _Last updated: January 2026_
-_Source: safzan Frontend Web Application (`src/styles/globals.css`)_
+_Source: amsy Frontend Web Application (`src/styles/globals.css`)_

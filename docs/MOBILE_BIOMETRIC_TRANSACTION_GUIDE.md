@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how mobile developers should implement biometric transaction authentication for the safzan Data Frontend, integrating with the native ecosystem's constraints while matching the web frontend's intended functionality.
+This guide explains how mobile developers should implement biometric transaction authentication for the amsy Data Frontend, integrating with the native ecosystem's constraints while matching the web frontend's intended functionality.
 
 ### Key Principle
 
@@ -223,7 +223,7 @@ class SoftLockManager {
             do {
                 let success = try await context.evaluatePolicy(
                     .deviceOwnerAuthenticationWithBiometrics,
-                    localizedReason: "Unlock safzan Data"
+                    localizedReason: "Unlock amsy Data"
                 )
                 return success
             } catch {
@@ -280,7 +280,7 @@ class SoftLockManager(private val context: Context) {
         )
 
         val promptInfo = PromptInfo.Builder()
-            .setTitle("Unlock safzan Data")
+            .setTitle("Unlock amsy Data")
             .setNegativeButtonText("Cancel")
             .build()
 
@@ -301,7 +301,7 @@ Backend must provide WebAuthn endpoints matching web implementation:
 GET /biometric/auth/options
 Response: {
   "challenge": "base64_challenge_string",
-  "rpId": "safzan-data.com",
+  "rpId": "amsy-data.com",
   "allowCredentials": [
     {
       "id": "base64_credential_id",
@@ -439,7 +439,7 @@ class TransactionBiometricManager {
         // Get the stored private key reference
         let query: [String: Any] = [
             kSecClass as String: kSecClassKey,
-            kSecAttrApplicationTag as String: "com.safzan.biometric.key",
+            kSecAttrApplicationTag as String: "com.amsy.biometric.key",
             kSecReturnRef as String: true
         ]
 
@@ -605,7 +605,7 @@ class TransactionBiometricManager(
         val keyStore = KeyStore.getInstance("AndroidKeyStore")
         keyStore.load(null)
 
-        val privateKey = keyStore.getKey("com.safzan.biometric.key", null) as PrivateKey
+        val privateKey = keyStore.getKey("com.amsy.biometric.key", null) as PrivateKey
 
         // Sign the challenge
         val signature = Signature.getInstance("SHA256withECDSA")
@@ -692,7 +692,7 @@ POST /biometric/register/verify
 ```http
 GET /biometric/auth/options
 → challenge: base64 challenge string
-→ rpId: "safzan-data.com"
+→ rpId: "amsy-data.com"
 → allowCredentials: [array of credential IDs]
 → userVerification: "preferred"
 → timeout: 60000

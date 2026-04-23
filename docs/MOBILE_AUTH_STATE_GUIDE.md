@@ -19,7 +19,7 @@
 
 ## Overview
 
-The safzan app uses a **dual-layer authentication system**:
+The amsy app uses a **dual-layer authentication system**:
 
 | Layer               | Purpose                            | Storage                 |
 | ------------------- | ---------------------------------- | ----------------------- |
@@ -487,7 +487,7 @@ export function SoftLockScreen() {
 
   const handleBiometricUnlock = async () => {
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: "Unlock safzan",
+      promptMessage: "Unlock amsy",
       fallbackLabel: "Use Passcode",
     });
 

@@ -1,4 +1,4 @@
-# safzan Data Frontend - AI Coding Agent Instructions
+# amsy Data Frontend - AI Coding Agent Instructions
 
 ## Quick Start
 

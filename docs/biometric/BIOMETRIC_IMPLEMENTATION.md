@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document details the implementation of the WebAuthn-based biometric authentication system in the safzan Data frontend. It allows users to register their devices (FaceID, TouchID, Windows Hello, etc.) and use them for secure, passwordless login.
+This document details the implementation of the WebAuthn-based biometric authentication system in the amsy Data frontend. It allows users to register their devices (FaceID, TouchID, Windows Hello, etc.) and use them for secure, passwordless login.
 
 ## Architecture
 

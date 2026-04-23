@@ -1,6 +1,6 @@
 # Frontend Integration Guide: Analytics System
 
-This guide provides a comprehensive reference for integrating the safzan Data backend analytics system into the frontend application. It covers available endpoints, data types, and best practices for visualization and performance.
+This guide provides a comprehensive reference for integrating the amsy Data backend analytics system into the frontend application. It covers available endpoints, data types, and best practices for visualization and performance.
 
 ## 🚀 Overview
 

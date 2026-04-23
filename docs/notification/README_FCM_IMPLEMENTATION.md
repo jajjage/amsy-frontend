@@ -2,7 +2,7 @@
 
 ## 🎯 Project Summary
 
-Enhanced the safzan Data Frontend with a comprehensive FCM (Firebase Cloud Messaging) token lifecycle management system. The implementation includes intelligent token synchronization, security measures for shared devices, and complete documentation.
+Enhanced the amsy Data Frontend with a comprehensive FCM (Firebase Cloud Messaging) token lifecycle management system. The implementation includes intelligent token synchronization, security measures for shared devices, and complete documentation.
 
 **Status:** ✅ **READY FOR IMPLEMENTATION**
 

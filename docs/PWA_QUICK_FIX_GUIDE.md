@@ -35,7 +35,7 @@ Icon http://localhost:3001/images/logo.svg failed to load
 ```
 1. Open DevTools (F12)
 2. Go to Application tab
-3. Cache Storage → Right click "safzan-data-v1" → Delete
+3. Cache Storage → Right click "amsy-data-v1" → Delete
 4. Ctrl+Shift+R (hard refresh)
 ```
 
@@ -121,7 +121,7 @@ To remove ALL warnings:
 1. **Clear cache** (fixes SVG warning)
 
    ```
-   DevTools → Application → Cache → Delete "safzan-data-v1"
+   DevTools → Application → Cache → Delete "amsy-data-v1"
    ```
 
 2. **Add screenshots** (fixes screenshot warning)

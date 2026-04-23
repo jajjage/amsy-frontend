@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide documents the complete flow of creating, displaying, and sharing transaction details and receipts in the safzan frontend. It covers:
+This guide documents the complete flow of creating, displaying, and sharing transaction details and receipts in the amsy frontend. It covers:
 
 1. **Transaction Initiation** - How transactions are created via API
 2. **Transaction State Lifecycle** - States transitions from pending → processing → completed/failed
@@ -955,7 +955,7 @@ export const ExportReceipt = React.forwardRef<
       {/* Footer */}
       <div style={{ marginTop: "32px", textAlign: "center", borderTop: "1px solid #E5E7EB" }}>
         <p style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: "500" }}>
-          safzan-data.com
+          amsy-data.com
         </p>
       </div>
     </div>
@@ -1095,7 +1095,7 @@ export function ShareTransactionDialog({
         // Create file
         const file = new File(
           [blob],
-          `safzan-receipt-${transaction.id.slice(0, 8)}.png`,
+          `amsy-receipt-${transaction.id.slice(0, 8)}.png`,
           { type: "image/png" }
         );
 
@@ -1106,7 +1106,7 @@ export function ShareTransactionDialog({
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: "safzan Transaction Receipt",
+            title: "amsy Transaction Receipt",
             text: shareText,
           });
           onClose();
@@ -1210,7 +1210,7 @@ export function ShareTransactionDialog({
         const pdfBlob = pdf.output("blob");
         const file = new File(
           [pdfBlob],
-          `safzan-receipt-${transaction.id.slice(0, 8)}.pdf`,
+          `amsy-receipt-${transaction.id.slice(0, 8)}.pdf`,
           { type: "application/pdf" }
         );
 
@@ -1220,7 +1220,7 @@ export function ShareTransactionDialog({
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: "safzan Transaction Receipt",
+            title: "amsy Transaction Receipt",
             text: shareText,
           });
           onClose();
@@ -1307,7 +1307,7 @@ export function ShareTransactionDialog({
     const recipient = tx.related?.recipient_phone || "-";
     const provider = tx.related?.operatorCode || "-";
 
-    return `safzan Receipt\nTransaction ID: ${tx.id}\nAmount: ${amount}\nStatus: ${status}\nProvider: ${provider}\nRecipient: ${recipient}\nDate: ${date}`;
+    return `amsy Receipt\nTransaction ID: ${tx.id}\nAmount: ${amount}\nStatus: ${status}\nProvider: ${provider}\nRecipient: ${recipient}\nDate: ${date}`;
   };
 
   return (
