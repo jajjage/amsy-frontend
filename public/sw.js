@@ -1,7 +1,14 @@
 const CACHE_NAME = "amsy-cache-v1";
 
 // Pages and assets to pre-cache for instant PWA startup
-const PRECACHE_URLS = ["/", "/dashboard", "/login", "/images/logo.png"];
+const PRECACHE_URLS = [
+  "/",
+  "/dashboard",
+  "/login",
+  "/manifest.json",
+  "/images/pwa-192.png",
+  "/images/pwa-512.png",
+];
 
 // Minimal service worker to satisfy installability checks and provide basic offline support
 self.addEventListener("install", (event) => {
@@ -112,4 +119,94 @@ self.addEventListener("fetch", (event) => {
 
   // 3. All other requests (API, external, etc.) - Network Only
   // Do not intercept - let the browser handle them naturally
+});
+
+self.addEventListener("push", (event) => {
+  console.log("[SW] Push event received");
+
+  if (!event.data) {
+    console.log("[SW] No data in push event");
+    return;
+  }
+
+  try {
+    const payload = event.data.json();
+    const notificationTitle = payload.notification?.title || "New Notification";
+    const notificationBody = payload.notification?.body || "";
+    const notificationId = payload.data?.notificationId || "";
+    const transactionId = payload.data?.transactionId || "";
+
+    const notificationOptions = {
+      body: notificationBody,
+      icon: payload.notification?.image || "/images/pwa-192.png",
+      badge: "/res/drawable-xxxhdpi/ic_notification.png",
+      tag: notificationId || "notification",
+      requireInteraction: false,
+      data: {
+        notificationId,
+        transactionId,
+        ...payload.data,
+      },
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(notificationTitle, notificationOptions)
+    );
+  } catch (error) {
+    console.error("[SW] Error handling push:", error);
+  }
+});
+
+self.addEventListener("notificationclose", (event) => {
+  console.log("[SW] Notification closed:", event.notification.tag);
+});
+
+self.addEventListener("notificationclick", (event) => {
+  console.log("[SW] Notification clicked:", event.notification);
+  event.notification.close();
+
+  const notificationId = event.notification.data?.notificationId;
+  const transactionId = event.notification.data?.transactionId;
+  let urlToOpen = "/dashboard";
+
+  if (notificationId) {
+    urlToOpen = "/dashboard/notifications/";
+  } else if (transactionId) {
+    urlToOpen = `/dashboard/transactions/${transactionId}`;
+  }
+
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin)) {
+            if ("focus" in client) {
+              client.focus();
+            }
+
+            client.postMessage({
+              type: "navigate",
+              url: urlToOpen,
+              notificationId,
+              transactionId,
+            });
+            return undefined;
+          }
+        }
+
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+
+        return undefined;
+      })
+      .catch((error) => {
+        console.error("[SW] Error handling notification click:", error);
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+        return undefined;
+      })
+  );
 });

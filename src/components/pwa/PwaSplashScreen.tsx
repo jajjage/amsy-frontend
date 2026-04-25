@@ -143,7 +143,7 @@ export function PwaSplashScreen({ children }: { children: React.ReactNode }) {
           {/* Logo in center - use theme-appropriate splash icon */}
           <div style={{ animation: "pulse 2s ease-in-out infinite" }}>
             <Image
-              src="/images/logo.svg"
+              src="/images/logo.png"
               alt="Amsy"
               width={100}
               height={100}

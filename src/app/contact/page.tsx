@@ -8,15 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChevronRight,
-  Headphones,
-  Mail,
-  MessageCircle,
-  Phone,
-} from "lucide-react";
-import Link from "next/link";
+import { Headphones, Mail, MessageCircle, Phone } from "lucide-react";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contact Us | Amsy",
@@ -30,7 +24,7 @@ export default function ContactPage() {
       title: "WhatsApp Chat",
       description: "Fastest response via WhatsApp",
       action: "Start Chat",
-      href: "https://wa.me/2349000000000",
+      href: "https://wa.me/2348143641053",
       color: "bg-green-100 text-green-600",
     },
     {
@@ -46,7 +40,7 @@ export default function ContactPage() {
       title: "Phone Support",
       description: "Available 9AM - 6PM",
       action: "Call Now",
-      href: "tel:+2349000000000",
+      href: "tel:+2348143641053",
       color: "bg-orange-100 text-orange-600",
     },
   ];

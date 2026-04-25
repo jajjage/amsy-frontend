@@ -49,13 +49,22 @@ export async function registerServiceWorker() {
   }
 
   try {
-    // For localhost development, use HTTP protocol if available
-    const swUrl =
-      window.location.protocol === "https:" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1")
-        ? "/firebase-messaging-sw.js"
-        : "/firebase-messaging-sw.js";
+    // Keep one root-scope worker so installability, offline support,
+    // and push handling all use the same registration.
+    const swUrl = "/sw.js";
+
+    const existingRegistrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(
+      existingRegistrations.map((registration) => {
+        const scriptUrl = registration.active?.scriptURL;
+        if (scriptUrl?.includes("/firebase-messaging-sw.js")) {
+          console.log("Unregistering legacy Firebase service worker:", scriptUrl);
+          return registration.unregister();
+        }
+
+        return Promise.resolve(false);
+      })
+    );
 
     const registration = await navigator.serviceWorker.register(swUrl, {
       scope: "/",

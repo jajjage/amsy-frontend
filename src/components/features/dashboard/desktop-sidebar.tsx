@@ -89,7 +89,7 @@ export function DesktopSidebar({ className }: { className?: string }) {
         <div className="mb-8 flex items-center gap-2 px-2">
           <div className="relative size-8 overflow-hidden rounded-full">
             <Image
-              src="/images/logo.svg"
+              src="/images/logo.png"
               alt="Amsy"
               fill
               className="object-cover"

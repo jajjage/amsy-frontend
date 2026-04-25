@@ -86,7 +86,7 @@ export function PageLoader({
         {/* Logo */}
         <div style={{ animation: "page-loader-pulse 2s ease-in-out infinite" }}>
           <Image
-            src="/images/logo.svg"
+            src="/images/logo.png"
             alt="Loading"
             width={config.logo}
             height={config.logo}

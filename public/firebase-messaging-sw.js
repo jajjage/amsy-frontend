@@ -1,6 +1,6 @@
 // Service Worker with PWA offline support and Firebase Cloud Messaging
 const CACHE_NAME = "amsy-cache-v1";
-const STATIC_ASSETS = ["/", "/manifest.json", "/images/logo.svg"];
+const STATIC_ASSETS = ["/", "/manifest.json", "/images/pwa-192.png"];
 
 // Immediately activate this service worker when installed
 self.addEventListener("install", (event) => {
@@ -102,7 +102,7 @@ self.addEventListener("push", (event) => {
 
     const notificationOptions = {
       body: notificationBody,
-      icon: payload.notification?.image || "/images/logo.svg",
+      icon: payload.notification?.image || "/images/pwa-192.png",
       badge: "/res/drawable-xxxhdpi/ic_notification.png", // Monochrome icon for Android status bar
       tag: notificationId || "notification",
       requireInteraction: false,
