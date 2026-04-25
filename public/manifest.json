@@ -1,6 +1,6 @@
 {
-  "name": "Amsy",
-  "short_name": "Amsy",
+  "name": "Amsy Data",
+  "short_name": "Amsy Data",
   "id": "/",
   "description": "Fast, reliable data, airtime, and bill payments.",
   "start_url": "/?source=pwa",
@@ -12,19 +12,19 @@
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/images/pwa-192.png",
+      "src": "/images/adaptive-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/pwa-512.png",
+      "src": "/images/adaptive-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/maskable-512.png",
+      "src": "/images/ios-light.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -39,7 +39,7 @@
       "url": "/dashboard/notifications?source=shortcut",
       "icons": [
         {
-          "src": "/images/pwa-192.png",
+          "src": "/images/adaptive-icon.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -52,7 +52,7 @@
       "url": "/dashboard?source=shortcut",
       "icons": [
         {
-          "src": "/images/pwa-192.png",
+          "src": "/images/adaptive-icon.png",
           "sizes": "192x192",
           "type": "image/png"
         }
