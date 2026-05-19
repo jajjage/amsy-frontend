@@ -25,6 +25,7 @@ import {
   FileTextIcon,
   FingerprintIcon,
   GiftIcon,
+  HandCoinsIcon,
   HomeIcon,
   LandmarkIcon,
   LogOutIcon,
@@ -61,6 +62,11 @@ const navItems = [
     title: "Users",
     href: "/admin/dashboard/users",
     icon: UsersIcon,
+  },
+  {
+    title: "Agents",
+    href: "/admin/dashboard/agents",
+    icon: HandCoinsIcon,
   },
   {
     title: "Transactions",
@@ -116,6 +122,16 @@ const navItems = [
     title: "Products",
     href: "/admin/dashboard/products",
     icon: PackageIcon,
+  },
+  {
+    title: "Agent Products",
+    href: "/admin/dashboard/agent-products",
+    icon: PercentIcon,
+  },
+  {
+    title: "Agent Withdrawals",
+    href: "/admin/dashboard/agent-withdrawals",
+    icon: LandmarkIcon,
   },
   {
     title: "Offers",

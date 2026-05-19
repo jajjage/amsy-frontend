@@ -32,7 +32,7 @@ import { UserInfo } from "./user-info";
 /**
  * User Dashboard
  * Main dashboard view for regular users
- * Displays balance, transactions, referrals, and action buttons
+ * Displays balance, transactions, and action buttons
  */
 export function UserDashboard() {
   const { user, isLoading, refetch: refetchUser } = useAuth();
@@ -250,9 +250,6 @@ export function UserDashboard() {
               <div className="-mt-10 md:-mt-12">
                 <TransactionHistory isVisible={isBalanceVisible} />
               </div>
-
-              {/* Referrals Balance
-              <ReferralsCard /> */}
 
               {/* Make Payment Actions */}
               <ActionButtons />

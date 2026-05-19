@@ -2,7 +2,6 @@
 
 import { ResendVerificationModal } from "@/components/auth/ResendVerificationModal";
 import { useAuth } from "@/hooks/useAuth";
-import { useReferralStatsV2 } from "@/hooks/useReferrals";
 import { AlertTriangle, ChevronRight, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,7 +11,6 @@ export function VerificationBanner() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { data: stats } = useReferralStatsV2();
 
   useEffect(() => {
     // Check if dismissed within the last 7 days (stored in localStorage)
@@ -48,11 +46,6 @@ export function VerificationBanner() {
     return null;
   }
 
-  // Check if user has pending bonuses
-  const hasPendingBonus =
-    stats?.referredStats?.referralStatus === "pending" ||
-    (stats?.referrerStats?.pendingReferrerAmount || 0) > 0;
-
   return (
     <div className="relative border-b border-amber-100 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/30">
       <div className="container mx-auto flex flex-col items-center justify-between gap-3 pr-8 sm:flex-row">
@@ -61,17 +54,8 @@ export function VerificationBanner() {
             <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400" />
           </div>
           <p>
-            {hasPendingBonus ? (
-              <>
-                <span className="font-semibold">Action Required:</span> Verify
-                your account to claim your referral bonuses and withdrawals.
-              </>
-            ) : (
-              <>
-                <span className="font-semibold">Secure Account:</span> Verify
-                your email to unlock all features and secure your account.
-              </>
-            )}
+            <span className="font-semibold">Secure Account:</span> Verify your
+            email to unlock all features and secure your account.
           </p>
         </div>
         <button
@@ -93,12 +77,8 @@ export function VerificationBanner() {
       <ResendVerificationModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        title={hasPendingBonus ? "Unlock Your Rewards" : "Verify Your Account"}
-        description={
-          hasPendingBonus
-            ? "Verify your email to instantly claim your pending bonuses and enable withdrawals."
-            : "Confirm your email address to ensure your account is fully secure and all features are accessible."
-        }
+        title="Verify Your Account"
+        description="Confirm your email address to ensure your account is fully secure and all features are accessible."
       />
     </div>
   );

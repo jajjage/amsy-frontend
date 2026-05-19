@@ -13,6 +13,7 @@ import {
   BarChart3,
   Clock,
   FileUp,
+  HandCoins,
   Home,
   Key,
   Link2,
@@ -21,7 +22,6 @@ import {
   TerminalSquare,
   Trophy,
   User,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,7 +30,7 @@ import { useEffect, useState } from "react";
 
 const navItems = [
   { label: "Home", icon: Home, href: "/dashboard" },
-  { label: "Referral", icon: Users, href: "/dashboard/referrals" },
+  { label: "Agent", icon: HandCoins, href: "/dashboard/agent" },
   { label: "Rewards", icon: Trophy, href: "/dashboard/rewards" },
   { label: "Profile", icon: User, href: "/dashboard/profile" },
 ];

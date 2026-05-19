@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useRegister } from "@/hooks/useAuth";
-import { useValidateReferralCode } from "@/hooks/useReferrals";
+import { useValidateAgentCode } from "@/hooks/useAgent";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useForm, type Resolver } from "react-hook-form";
@@ -49,7 +49,7 @@ const registerSchema = z
             "Please enter a valid Nigerian phone number (e.g., 08012345678)",
         }
       ),
-    referralCode: z.string().optional(),
+    agentCode: z.string().optional(),
     password: z.preprocess(
       (val) => (typeof val === "string" ? val.trim() : val),
       z
@@ -72,12 +72,14 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const searchParams = useSearchParams();
-  const urlCode = searchParams.get("code") || searchParams.get("ref");
+  const urlCode =
+    searchParams.get("agentCode") ||
+    searchParams.get("code") ||
+    searchParams.get("ref");
 
   const registerMutation = useRegister();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { mutateAsync: validateCode, isPending: isValidating } =
-    useValidateReferralCode();
+    useValidateAgentCode();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(
@@ -88,7 +90,7 @@ export function RegisterForm() {
       fullName: "",
       email: "",
       phoneNumber: "",
-      referralCode: urlCode || "",
+      agentCode: urlCode?.toUpperCase() || "",
       password: "",
       confirmPassword: "",
     },
@@ -97,32 +99,40 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    setError,
     setValue,
     formState: { isValid, errors },
   } = form;
 
-  // Update referralCode if URL changes
+  // Update agent code if URL changes
   useEffect(() => {
     if (urlCode) {
-      setValue("referralCode", urlCode);
+      setValue("agentCode", urlCode.toUpperCase());
     }
   }, [urlCode, setValue]);
 
   const onSubmit = async (data: RegisterFormValues) => {
     const { confirmPassword: _confirmPassword, ...rest } = data;
 
-    // TODO: Re-enable when referrals feature is ready
-    // Validate referral code if provided
-    // if (rest.referralCode) {
-    //   try {
-    //     await validateCode(rest.referralCode);
-    //   } catch (error: any) {
-    //     setError("referralCode", {
-    //       message: error.response?.data?.message || "Invalid referral code",
-    //     });
-    //     return;
-    //   }
-    // }
+    const normalizedAgentCode = rest.agentCode?.trim().toUpperCase();
+    if (normalizedAgentCode) {
+      try {
+        const result = await validateCode(normalizedAgentCode);
+        const isValid =
+          result.data?.isValid ?? (result.data as any)?.valid ?? false;
+        if (!isValid) {
+          setError("agentCode", { message: "Invalid agent code" });
+          return;
+        }
+      } catch (error: any) {
+        setError("agentCode", {
+          message:
+            error.response?.data?.message ||
+            "Could not validate this agent code. Please try again.",
+        });
+        return;
+      }
+    }
 
     // Normalize phone number (strip non-digits)
     const normalizedPhone = rest.phoneNumber.replace(/\D/g, "");
@@ -132,7 +142,7 @@ export function RegisterForm() {
       password: rest.password,
       phoneNumber: normalizedPhone,
       fullName: rest.fullName,
-      // referralCode: rest.referralCode, // Disabled - referrals Coming Soon
+      agentCode: normalizedAgentCode || undefined,
     };
 
     // Store password in sessionStorage temporarily for auto-fill on login page
@@ -351,21 +361,28 @@ export function RegisterForm() {
               </p>
             )}
           </div>
-          {/* TODO: Re-enable when referrals feature is ready
           <div className="grid gap-2">
-            <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+            <Label htmlFor="agentCode">Agent Code (Optional)</Label>
             <Input
-              id="referralCode"
-              placeholder="e.g. JOHND123"
-              {...register("referralCode")}
+              id="agentCode"
+              placeholder="e.g. AG123ABC"
+              {...register("agentCode", {
+                onChange: (event) => {
+                  event.target.value = event.target.value.toUpperCase();
+                },
+              })}
             />
-            {errors.referralCode && (
+            {urlCode && !errors.agentCode && (
+              <p className="text-muted-foreground text-sm">
+                Agent code applied from your invite link.
+              </p>
+            )}
+            {errors.agentCode && (
               <p className="text-sm text-red-500">
-                {errors.referralCode.message}
+                {errors.agentCode.message}
               </p>
             )}
           </div>
-          */}
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">

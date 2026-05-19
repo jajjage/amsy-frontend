@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 import {
   Briefcase,
   Clock,
+  HandCoins,
   Home,
   Sparkles,
   Trophy,
   User,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 
 const baseNavItems = [
   { label: "Home", icon: Home, href: "/dashboard" },
-  { label: "Referral", icon: Users, href: "/dashboard/referrals" },
+  { label: "Agent", icon: HandCoins, href: "/dashboard/agent" },
   { label: "Rewards", icon: Trophy, href: "/dashboard/rewards" },
   { label: "Profile", icon: User, href: "/dashboard/profile" },
 ];
