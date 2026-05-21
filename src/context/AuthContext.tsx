@@ -78,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsSessionExpired(true);
     setUserState(null);
     localStorage.removeItem("auth_user_cache");
+    localStorage.removeItem("auth_user_cache_time");
   };
 
   const setUser = (newUser: User | null) => {
@@ -86,6 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Cache user for 5 minutes
       localStorage.setItem("auth_user_cache", JSON.stringify(newUser));
       localStorage.setItem("auth_user_cache_time", Date.now().toString());
+      setIsSessionExpired(false);
+      setHasRefreshTokens(true);
+    } else {
+      localStorage.removeItem("auth_user_cache");
+      localStorage.removeItem("auth_user_cache_time");
+      setHasRefreshTokens(false);
     }
   };
 

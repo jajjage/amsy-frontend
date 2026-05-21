@@ -188,6 +188,81 @@ let redirectReasonCallback:
     ) => void)
   | null = null;
 
+const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as any;
+    return String(data?.message || data?.error || error.message || "");
+  }
+
+  return error instanceof Error ? error.message : String(error || "");
+};
+
+const isNetworkOrTemporaryError = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) return false;
+
+  const message = String(error.message || "").toLowerCase();
+  const status = error.response?.status;
+
+  return (
+    !error.response ||
+    status === 408 ||
+    status === 429 ||
+    (typeof status === "number" && status >= 500) ||
+    message.includes("network") ||
+    message.includes("timeout") ||
+    message.includes("connection") ||
+    message.includes("econnrefused") ||
+    message.includes("err_connection_reset")
+  );
+};
+
+const looksLikeAuthSessionFailure = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) {
+    return getErrorMessage(error).toLowerCase().includes("session expired");
+  }
+
+  const status = error.response?.status;
+  const message = getErrorMessage(error).toLowerCase();
+  const url = String(error.config?.url || "");
+
+  if (isNetworkOrTemporaryError(error)) return false;
+
+  if (url.includes("/auth/refresh")) {
+    return (
+      status === 401 ||
+      message.includes("refresh token") ||
+      message.includes("session expired") ||
+      message.includes("invalid or expired")
+    );
+  }
+
+  if (status !== 401) return false;
+
+  return (
+    message.includes("token") ||
+    message.includes("access token") ||
+    message.includes("not authenticated") ||
+    message.includes("authentication required") ||
+    message.includes("session expired") ||
+    message.includes("invalid or expired")
+  );
+};
+
+const expireSession = (
+  reason: "session-expired" | "session-invalid" | "user-deleted" = "session-invalid"
+) => {
+  if (redirectReasonCallback) {
+    redirectReasonCallback(reason);
+  }
+  if (authLoadingCallback) {
+    authLoadingCallback(true, "redirecting");
+  }
+  if (sessionExpiredCallback) {
+    sessionExpiredCallback();
+  }
+  clearSessionCookies();
+};
+
 export function setSessionExpiredCallback(callback: () => void) {
   sessionExpiredCallback = callback;
 }
@@ -291,29 +366,13 @@ apiClient.interceptors.response.use(
         cookies: document.cookie,
       });
 
-      // If we've already tried refreshing too many times, session is expired
+      // If we've already tried refreshing too many times, stop retrying but do
+      // not destroy the session unless the server explicitly says auth failed.
       if (refreshAttemptCount >= MAX_REFRESH_ATTEMPTS) {
-        console.error("[AUTH] Max refresh attempts reached - Session expired", {
+        console.warn("[AUTH] Max refresh attempts reached", {
           attempts: refreshAttemptCount,
         });
-
-        // Signal that we're redirecting due to invalid session
-        if (authLoadingCallback) {
-          authLoadingCallback(true, "redirecting");
-        }
-        if (redirectReasonCallback) {
-          redirectReasonCallback("session-invalid");
-        }
-
-        // Notify React components that session has expired
-        if (sessionExpiredCallback) {
-          sessionExpiredCallback();
-        }
-
-        // Clear cookies and session state
-        clearSessionCookies();
-
-        return Promise.reject(new Error("Session expired"));
+        return Promise.reject(error);
       }
 
       // If already refreshing, queue this request
@@ -381,13 +440,7 @@ apiClient.interceptors.response.use(
 
         // Check if we should treat this as session expired
         // Only mark as expired on auth-specific errors, not temporary server errors
-        const shouldExpireSession =
-          refreshAttemptCount >= MAX_REFRESH_ATTEMPTS ||
-          refreshStatus === 401 || // Unauthorized - refresh token invalid
-          refreshStatus === 403 || // Forbidden - no permission
-          refreshStatus === 404; // Not Found - user removed or invalid endpoint
-
-        // Don't expire on 400 or 500 - those might be temporary
+        const shouldExpireSession = looksLikeAuthSessionFailure(refreshError);
 
         if (shouldExpireSession) {
           console.log("[AUTH] Session expired - refresh failed with status", {
@@ -396,31 +449,7 @@ apiClient.interceptors.response.use(
             maxAttempts: MAX_REFRESH_ATTEMPTS,
           });
 
-          // Set redirect reason based on status
-          if (redirectReasonCallback) {
-            if (refreshStatus === 404) {
-              redirectReasonCallback("user-deleted");
-            } else {
-              redirectReasonCallback("session-invalid");
-            }
-          }
-
-          // Signal that we're redirecting
-          if (authLoadingCallback) {
-            authLoadingCallback(true, "redirecting");
-          }
-
-          // Notify React components
-          if (sessionExpiredCallback) {
-            console.log(
-              "[AUTH] Calling sessionExpiredCallback from api-client"
-            );
-            sessionExpiredCallback();
-          } else {
-            console.error("[AUTH] sessionExpiredCallback is not set!");
-          }
-
-          clearSessionCookies();
+          expireSession(refreshStatus === 404 ? "user-deleted" : "session-invalid");
           return Promise.reject(new Error("Session expired"));
         }
 
@@ -443,15 +472,20 @@ apiClient.interceptors.response.use(
         (error.response?.data && (error.response.data as any).message) || "";
       const normalized = String(message).toLowerCase();
 
-      // Check if it's a business logic 403 (e.g., account verification required)
+      // Check if it's a business logic/access-control 403.
+      // A normal forbidden response must not clear cookies or log the user out.
       const isBusinessLogicForbidden =
         normalized.includes("verify your account") ||
         normalized.includes("verification required") ||
-        normalized.includes("account is not verified");
+        normalized.includes("account is not verified") ||
+        normalized.includes("insufficient permissions") ||
+        normalized.includes("access denied") ||
+        normalized.includes("feature is not enabled") ||
+        normalized.includes("agent_feature_disabled");
 
       if (isBusinessLogicForbidden) {
         console.warn(
-          "[AUTH] 403 Business Logic Forbidden - Verification needed",
+          "[AUTH] 403 Forbidden handled by caller",
           {
             url: originalRequest.url,
             message,
@@ -461,27 +495,10 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      console.warn("[AUTH] 403 Forbidden - Access denied", {
+      console.warn("[AUTH] 403 Forbidden - leaving session intact", {
         url: originalRequest.url,
       });
-
-      // Set redirect reason
-      if (redirectReasonCallback) {
-        redirectReasonCallback("session-invalid");
-      }
-
-      // Signal that we're redirecting
-      if (authLoadingCallback) {
-        authLoadingCallback(true, "redirecting");
-      }
-
-      // Notify React components
-      if (sessionExpiredCallback) {
-        sessionExpiredCallback();
-      }
-
-      clearSessionCookies();
-      return Promise.reject(new Error("Access forbidden - session invalid"));
+      return Promise.reject(error);
     }
 
     // ========================================================================
@@ -568,11 +585,7 @@ apiClient.interceptors.response.use(
         });
 
         if (looksLikeAuthFailure) {
-          if (sessionExpiredCallback) {
-            sessionExpiredCallback();
-          }
-
-          clearSessionCookies();
+          expireSession("session-invalid");
         } else {
           // Business logic 401 - do not expire session; let caller handle it
           AUTH_DEBUG.log(

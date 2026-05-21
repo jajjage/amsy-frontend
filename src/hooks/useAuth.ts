@@ -94,6 +94,36 @@ function getStoredLoginUrl(): string {
   return baseUrl;
 }
 
+function shouldExpireSessionFromProfileError(error: AxiosError): boolean {
+  const status = error.response?.status;
+  const data = error.response?.data as any;
+  const message = String(data?.message || data?.error || error.message || "")
+    .toLowerCase()
+    .trim();
+
+  if (!status) return false;
+
+  if (status === 401) {
+    return (
+      message.includes("token") ||
+      message.includes("session expired") ||
+      message.includes("not authenticated") ||
+      message.includes("authentication required") ||
+      message.includes("invalid or expired")
+    );
+  }
+
+  if (status === 404) {
+    return (
+      message.includes("user not found") ||
+      message.includes("account not found") ||
+      message.includes("user deleted")
+    );
+  }
+
+  return false;
+}
+
 // ============================================================================
 // FETCH CURRENT USER - REACT QUERY
 // ============================================================================
@@ -188,15 +218,7 @@ function useCurrentUserQuery() {
         errorData: query.error?.response?.data,
       });
 
-      // Mark session as expired on auth errors
-      // The axios interceptor has already attempted refresh on 401
-      // If we still get 401 here, it means refresh failed
-      if (
-        status === 401 ||
-        status === 400 ||
-        status === 403 ||
-        status === 404
-      ) {
+      if (shouldExpireSessionFromProfileError(query.error)) {
         console.error(
           "[AUTH] Auth error detected - marking session as expired",
           { status }
@@ -223,6 +245,11 @@ function useCurrentUserQuery() {
             }
           }, 0);
         }
+      } else {
+        console.warn("[AUTH] Profile fetch failed without expiring session", {
+          status,
+          message,
+        });
       }
 
       setIsLoading(false);
