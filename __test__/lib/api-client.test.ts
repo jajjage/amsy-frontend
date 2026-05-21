@@ -160,12 +160,17 @@ describe("API Client Logic", () => {
       );
     });
 
-    it("should logout user if refresh fails", async () => {
+    it("should logout user if refresh fails because the refresh session is invalid", async () => {
       const sessionExpiredMock = vi.fn();
       setSessionExpiredCallback(sessionExpiredMock);
 
       mockAxios.post.mockRejectedValue({
-        response: { status: 401 },
+        response: {
+          status: 401,
+          data: { message: "Refresh token is invalid or expired" },
+        },
+        config: { url: "/auth/refresh" },
+        message: "Request failed with status code 401",
       });
 
       const error = {
@@ -181,6 +186,36 @@ describe("API Client Logic", () => {
 
       expect(sessionExpiredMock).toHaveBeenCalled();
       expect(toast.error).toHaveBeenCalledWith(
+        expect.stringContaining("session has expired")
+      );
+    });
+
+    it("should NOT logout user if refresh fails because of a temporary server issue", async () => {
+      const sessionExpiredMock = vi.fn();
+      setSessionExpiredCallback(sessionExpiredMock);
+
+      mockAxios.post.mockRejectedValue({
+        response: {
+          status: 503,
+          data: { message: "Service temporarily unavailable" },
+        },
+        config: { url: "/auth/refresh" },
+        message: "Request failed with status code 503",
+      });
+
+      const error = {
+        response: { status: 401 },
+        config: { url: "/protected" },
+      };
+
+      try {
+        await resErrorHandler(error);
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
+
+      expect(sessionExpiredMock).not.toHaveBeenCalled();
+      expect(toast.error).not.toHaveBeenCalledWith(
         expect.stringContaining("session has expired")
       );
     });
