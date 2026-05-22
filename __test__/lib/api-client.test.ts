@@ -24,6 +24,7 @@ vi.mock("axios", () => {
 
   // Mock create to return our mockInstance
   mockInstance.create = vi.fn(() => mockInstance);
+  mockInstance.isAxiosError = vi.fn((error: any) => !!error?.isAxiosError);
 
   return {
     default: mockInstance,
@@ -171,6 +172,7 @@ describe("API Client Logic", () => {
         },
         config: { url: "/auth/refresh" },
         message: "Request failed with status code 401",
+        isAxiosError: true,
       });
 
       const error = {
@@ -201,6 +203,7 @@ describe("API Client Logic", () => {
         },
         config: { url: "/auth/refresh" },
         message: "Request failed with status code 503",
+        isAxiosError: true,
       });
 
       const error = {

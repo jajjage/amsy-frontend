@@ -21,6 +21,7 @@ import { Spinner } from "@/components/ui/spinner";
 import {
   useAgentAccount,
   useAgentStats,
+  useActivateAgent,
 } from "@/hooks/useAgent";
 import { useActiveWithdrawalCount } from "@/hooks/useWithdrawal";
 import { Copy, Share2 } from "lucide-react";
@@ -39,6 +40,7 @@ export default function AgentPage() {
     error: statsError,
     isLoading: statsLoading,
   } = useAgentStats(Boolean(account));
+  const activateAgent = useActivateAgent();
   const activeWithdrawalCount = useActiveWithdrawalCount();
 
   const [withdrawalMethod, setWithdrawalMethod] = useState<
@@ -84,14 +86,20 @@ export default function AgentPage() {
 
           <Card className="max-w-2xl">
             <CardHeader>
-              <CardTitle>Agent mode is not active yet</CardTitle>
+              <CardTitle>Activate agent mode</CardTitle>
               <CardDescription>
-                Tenant admins create agent accounts. Once your account is
-                enabled, your code, customers, commissions, and withdrawal tools
-                will appear here.
+                Agent access is enabled for this tenant. Activate your account
+                to generate your agent code and start tracking customers,
+                commissions, and withdrawals.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row">
+              <Button
+                onClick={() => activateAgent.mutate()}
+                disabled={activateAgent.isPending}
+              >
+                {activateAgent.isPending ? "Activating..." : "Activate Agent"}
+              </Button>
               <Link href="/dashboard">
                 <Button variant="outline">Back to Dashboard</Button>
               </Link>

@@ -14,6 +14,7 @@ import type {
   WithdrawCommissionsRequest,
 } from "@/types/agent.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 /**
  * Query Key Factory for agent operations
@@ -165,6 +166,12 @@ export function useActivateAgent() {
       queryClient.setQueryData(agentKeys.account(), response.data);
       queryClient.invalidateQueries({ queryKey: agentKeys.account() });
       queryClient.invalidateQueries({ queryKey: agentKeys.stats() });
+      toast.success(response.message || "Agent account activated successfully");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to activate agent account"
+      );
     },
   });
 }

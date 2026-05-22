@@ -435,10 +435,18 @@ export const agentPublicService = {
 export const agentUserService = {
   /**
    * Activate agent account for current user
-   * Tenant backend currently creates agents through the admin endpoint.
+   * POST /api/v1/dashboard/agent/activate
    */
   activateAgent: async (): Promise<ActivateAgentResponse> => {
-    throw new Error("Agent accounts are activated by tenant admins.");
+    const response = await apiClient.post<
+      ApiResponse<{ agent: AgentAccount; stats?: AgentStats }>
+    >(`/dashboard/agent/activate`);
+
+    return {
+      success: response.data.success,
+      message: response.data.message,
+      data: response.data.data?.agent as AgentAccount,
+    };
   },
 
   /**

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { useAgents, useDisableAgent, useEnableAgent } from "@/hooks/useAgent";
 import { useDebounce } from "@/hooks/useDebounce";
+import axios from "axios";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -32,7 +33,10 @@ export default function AdminAgentsPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 300);
-  const { data, isLoading } = useAgents(1, AGENTS_FETCH_LIMIT);
+  const { data, error, isError, isLoading, refetch } = useAgents(
+    1,
+    AGENTS_FETCH_LIMIT
+  );
   const { mutate: disableAgent, isPending: disabling } = useDisableAgent();
   const { mutate: enableAgent, isPending: enabling } = useEnableAgent();
 
@@ -107,6 +111,33 @@ export default function AdminAgentsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (isError) {
+    const message = axios.isAxiosError<{ message?: string }>(error)
+      ? error.response?.data?.message
+      : undefined;
+
+    return (
+      <div className="bg-muted/40 min-h-screen p-4 md:p-8">
+        <div className="mx-auto max-w-3xl">
+          <Card>
+            <CardHeader>
+              <CardTitle>Agent management is unavailable</CardTitle>
+              <CardDescription>
+                {message ||
+                  "We could not load agent accounts. Confirm this tenant has the agent feature enabled and your admin role has agent permissions."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" onClick={() => refetch()}>
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
