@@ -109,6 +109,25 @@ export function CheckoutModal({
     onConfirm(useCashback);
   };
 
+  const productTypeLabel =
+    product.productType === "data"
+      ? "Data"
+      : product.productType === "subscription"
+        ? "Call Sub"
+        : "Airtime";
+  const serviceLabel =
+    product.productType === "data"
+      ? "Mobile Data"
+      : product.productType === "subscription"
+        ? "Call Sub"
+        : "Airtime Recharge";
+  const planLabel =
+    product.productType === "data"
+      ? "Data Bundle"
+      : product.productType === "subscription"
+        ? "Call Sub"
+        : "Airtime";
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -117,9 +136,9 @@ export function CheckoutModal({
       >
         <DialogTitle className="sr-only">
           {isSuccess
-            ? `${product.productType === "data" ? "Data" : "Airtime"} Purchase Successful`
+            ? `${productTypeLabel} Purchase Successful`
             : isFailed
-              ? `${product.productType === "data" ? "Data" : "Airtime"} Purchase Failed`
+              ? `${productTypeLabel} Purchase Failed`
               : "Confirm Purchase"}
         </DialogTitle>
         <AnimatePresence mode="wait">
@@ -146,9 +165,7 @@ export function CheckoutModal({
                 transition={{ delay: 0.2, duration: 0.3 }}
                 className="mb-2 text-2xl font-bold tracking-tight"
               >
-                {product.productType === "data"
-                  ? "Data Purchase Failed"
-                  : "Airtime Purchase Failed"}
+                {productTypeLabel} Purchase Failed
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -213,9 +230,7 @@ export function CheckoutModal({
                 transition={{ delay: 0.2, duration: 0.3 }}
                 className="mb-2 text-2xl font-bold tracking-tight"
               >
-                {product.productType === "data"
-                  ? "Data Purchase Successful!"
-                  : "Airtime Purchase Successful!"}
+                {productTypeLabel} Purchase Successful!
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -223,7 +238,7 @@ export function CheckoutModal({
                 transition={{ delay: 0.3, duration: 0.3 }}
                 className="text-muted-foreground mb-4"
               >
-                {product.productType === "data" ? (
+                {product.productType !== "airtime" ? (
                   <>
                     <span className="text-foreground font-semibold">
                       {product.name}
@@ -254,6 +269,8 @@ export function CheckoutModal({
                 <p className="text-muted-foreground text-sm">
                   {product.productType === "data"
                     ? "Your data bundle is now active and ready to use."
+                    : product.productType === "subscription"
+                      ? "Your call subscription is now active and ready to use."
                     : "Your airtime has been credited instantly."}
                 </p>
               </motion.div>
@@ -355,9 +372,7 @@ export function CheckoutModal({
                       </Avatar>
                     )}
                     <span>
-                      {product.productType === "data"
-                        ? "Mobile Data"
-                        : "Airtime Recharge"}
+                      {serviceLabel}
                     </span>
                   </div>
                 </div>
@@ -371,9 +386,9 @@ export function CheckoutModal({
                 </div>
 
                 {/* Plan */}
-                {product.productType === "data" ? (
+                {product.productType !== "airtime" ? (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Data Bundle</span>
+                    <span className="text-muted-foreground">{planLabel}</span>
                     <span className="font-medium">{product.name}</span>
                   </div>
                 ) : (

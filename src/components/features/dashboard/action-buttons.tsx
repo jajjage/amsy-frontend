@@ -1,11 +1,12 @@
 "use client";
 
-import { Phone, Wifi, Receipt, LayoutGrid } from "lucide-react";
+import { BadgeCheck, Phone, Wifi, Receipt, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 
 const actions = [
   { label: "Data", icon: Wifi, href: "/dashboard/data" },
   { label: "Airtime", icon: Phone, href: "/dashboard/airtime" },
+  { label: "Call Sub", icon: BadgeCheck, href: "/dashboard/subscription" },
   { label: "Pay Bills", icon: Receipt, href: "/dashboard/bills" },
   { label: "More Services", icon: LayoutGrid, href: "/dashboard/more" },
 ];
