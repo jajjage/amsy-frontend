@@ -23,6 +23,8 @@ export interface Product {
   cashback_percentage?: number;
   metadata?: Record<string, unknown>;
   slug?: string | null;
+  bundleBaseProductId?: string | null;
+  bundleRepeatCount?: number | null;
   createdAt?: string;
   updatedAt?: string;
   // Mappings array from API
@@ -76,6 +78,8 @@ export interface CreateProductRequest {
   cashback_percentage?: number;
   // Category
   categoryId?: string;
+  bundleBaseProductId?: string | null;
+  bundleRepeatCount?: number | null;
   // Optional supplier mapping fields (creates mapping if provided)
   supplierId?: string;
   supplierProductCode?: string;
@@ -99,6 +103,8 @@ export interface UpdateProductRequest {
   metadata?: Record<string, unknown>;
   // Category
   categoryId?: string;
+  bundleBaseProductId?: string | null;
+  bundleRepeatCount?: number | null;
 }
 
 export interface MapProductToSupplierRequest {

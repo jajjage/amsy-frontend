@@ -21,17 +21,21 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAdminCategories } from "@/hooks/admin/useAdminCategories";
 import { useAdminOperators } from "@/hooks/admin/useAdminOperators";
-import { useCreateProduct } from "@/hooks/admin/useAdminProducts";
+import {
+  useAdminProducts,
+  useCreateProduct,
+} from "@/hooks/admin/useAdminProducts";
 import { useAdminSuppliers } from "@/hooks/admin/useAdminSuppliers";
 import { ArrowLeft, Loader2, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export function CreateProductForm() {
   const router = useRouter();
   const createMutation = useCreateProduct();
   const { data: operatorsData } = useAdminOperators();
+  const { data: productsData } = useAdminProducts();
   const { data: suppliersData } = useAdminSuppliers();
   const { data: categoriesData } = useAdminCategories();
 
@@ -48,6 +52,8 @@ export function CreateProductForm() {
   const [hasCashback, setHasCashback] = useState(false);
   const [cashbackPercentage, setCashbackPercentage] = useState("");
   const [metadata, setMetadata] = useState("");
+  const [bundleBaseProductId, setBundleBaseProductId] = useState("__none");
+  const [bundleRepeatCount, setBundleRepeatCount] = useState<number | "">(2);
 
   // Optional supplier mapping fields
   const [includeMapping, setIncludeMapping] = useState(false);
@@ -60,8 +66,26 @@ export function CreateProductForm() {
   const [mappingIsActive, setMappingIsActive] = useState(true);
 
   const operators = operatorsData?.data?.operators || [];
+  const allProducts = useMemo(
+    () => productsData?.data?.products || [],
+    [productsData?.data?.products]
+  );
   const suppliers = suppliersData?.data?.suppliers || [];
   const categories = categoriesData || [];
+  const bundleBaseProducts = useMemo(() => {
+    return allProducts
+      .filter((product) => {
+        const sameOperator = operatorId ? product.operatorId === operatorId : true;
+        return sameOperator && product.isActive && !product.bundleBaseProductId;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [allProducts, operatorId]);
+  const effectiveBundleBaseProductId =
+    bundleBaseProductId !== "__none" &&
+    bundleBaseProducts.some((product) => product.id === bundleBaseProductId)
+      ? bundleBaseProductId
+      : "__none";
+  const isBundleWrapper = effectiveBundleBaseProductId !== "__none";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +119,18 @@ export function CreateProductForm() {
           : undefined,
       metadata: parsedMetadata,
       categoryId: categoryId || undefined,
+      ...(isBundleWrapper
+        ? {
+            bundleBaseProductId: effectiveBundleBaseProductId,
+            bundleRepeatCount:
+              typeof bundleRepeatCount === "number" ? bundleRepeatCount : 2,
+          }
+        : {
+            bundleBaseProductId: null,
+            bundleRepeatCount: null,
+          }),
       // Include supplier mapping if enabled
-      ...(includeMapping && supplierId
+      ...(includeMapping && !isBundleWrapper && supplierId
         ? {
             supplierId,
             supplierProductCode,
@@ -309,6 +343,75 @@ export function CreateProductForm() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Bundle Fulfillment</CardTitle>
+            <CardDescription>
+              Optional. Select an existing active product to use as the hidden
+              supplier base for this product. The selected base product will be
+              purchased repeatedly behind the scenes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="bundleBaseProductId">Base Product</Label>
+                <Select
+                  value={effectiveBundleBaseProductId}
+                  onValueChange={(value) =>
+                    setBundleBaseProductId(value === "__none" ? "__none" : value)
+                  }
+                  disabled={bundleBaseProducts.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        bundleBaseProducts.length > 0
+                          ? "No bundle"
+                          : "No eligible base products"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">No bundle</SelectItem>
+                    {bundleBaseProducts.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name} ({product.productCode})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bundleRepeatCount">Repeat Count</Label>
+                <Input
+                  id="bundleRepeatCount"
+                  type="number"
+                  min={2}
+                  step={1}
+                  value={bundleRepeatCount}
+                  onChange={(e) =>
+                    setBundleRepeatCount(
+                      e.target.value ? Number(e.target.value) : ""
+                    )
+                  }
+                  placeholder="2"
+                  disabled={!isBundleWrapper}
+                />
+              </div>
+            </div>
+
+            {isBundleWrapper && (
+              <p className="text-muted-foreground text-xs">
+                This product will be treated as a wrapper and fulfilled using
+                the selected base product. Direct supplier mapping is disabled
+                for bundle wrapper products.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Supplier Mapping (Optional) */}
         <Card>
           <CardHeader>
@@ -321,7 +424,10 @@ export function CreateProductForm() {
               </div>
               <Switch
                 checked={includeMapping}
-                onCheckedChange={setIncludeMapping}
+                onCheckedChange={(checked) => {
+                  if (!isBundleWrapper) setIncludeMapping(checked);
+                }}
+                disabled={isBundleWrapper}
               />
             </div>
           </CardHeader>

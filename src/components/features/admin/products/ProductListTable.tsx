@@ -39,8 +39,15 @@ export function ProductListTable() {
   const { data, isLoading, isError, refetch } = useAdminProducts();
   const { data: operatorsData } = useAdminOperators();
 
-  const allProducts = data?.data?.products || [];
+  const allProducts = useMemo(
+    () => data?.data?.products || [],
+    [data?.data?.products]
+  );
   const operators = operatorsData?.data?.operators || [];
+  const productById = useMemo(
+    () => new Map(allProducts.map((product) => [product.id, product])),
+    [allProducts]
+  );
 
   // Client-side filtering for search, operator, and type
   const filteredProducts = useMemo(() => {
@@ -131,8 +138,18 @@ export function ProductListTable() {
           ) : (
             products.map((product: Product) => (
               <TableRow key={product.id}>
-                <TableCell className="max-w-[200px] truncate font-medium">
-                  {product.name}
+                <TableCell className="max-w-[220px]">
+                  <div className="space-y-1">
+                    <p className="truncate font-medium">{product.name}</p>
+                    {product.bundleBaseProductId && (
+                      <Badge variant="outline" className="text-[10px]">
+                        Bundle:{" "}
+                        {productById.get(product.bundleBaseProductId)?.name ||
+                          product.bundleBaseProductId}{" "}
+                        x {product.bundleRepeatCount || 2}
+                      </Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="max-w-[120px]">
                   <code className="bg-muted block truncate rounded px-1.5 py-0.5 text-xs">
