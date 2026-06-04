@@ -117,7 +117,7 @@ export const adminWithdrawalService = {
 
     const response = await apiClient.get<
       ApiResponse<BankWithdrawalsListResponse>
-    >(`/dashboard/admin/agents/bank-withdrawals?${params.toString()}`);
+    >(`/dashboard/agents/bank-withdrawals?${params.toString()}`);
     const body = response.data as ApiResponse<any>;
     return {
       ...body,
@@ -143,7 +143,7 @@ export const adminWithdrawalService = {
     const response = await apiClient.patch<
       ApiResponse<BankWithdrawalRequestObject>
     >(
-      `/dashboard/admin/agents/bank-withdrawals/${withdrawalRequestId}`,
+      `/dashboard/agents/bank-withdrawals/${withdrawalRequestId}`,
       payload
     );
     return response.data;

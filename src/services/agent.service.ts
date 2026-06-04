@@ -587,25 +587,25 @@ export const agentUserService = {
 export const agentAdminService = {
   /**
    * Get all products with their commission rules
-   * GET /api/v1/dashboard/admin/agents/products
+   * GET /api/v1/dashboard/agent/products
    */
   getProductCommissions: async (): Promise<AgentProduct[]> => {
     const response = await apiClient.get<
       ApiResponse<AgentProduct[]> | AgentProduct[]
-    >(`/dashboard/admin/agents/products`);
+    >(`/dashboard/agent/products`);
     return normalizeListResponse(response.data);
   },
 
   /**
    * Attach commission rule to a product
-   * POST /api/v1/dashboard/admin/agents/products
+   * POST /api/v1/dashboard/agent/products/:productId/commission
    */
   attachProductCommission: async (
     productId: string,
     payload: SetCommissionRequest
   ): Promise<SetCommissionResponse> => {
     const response = await apiClient.post<SetCommissionResponse>(
-      `/dashboard/admin/agents/products`,
+      `/dashboard/agent/products/${productId}/commission`,
       { ...payload, productIdentifier: payload.productIdentifier || productId }
     );
     return response.data;
@@ -613,14 +613,14 @@ export const agentAdminService = {
 
   /**
    * Update commission rule for a product
-   * Tenant backend uses the same upsert endpoint for create and update.
+   * PUT /api/v1/dashboard/agent/products/:productId/commission
    */
   updateProductCommission: async (
     productId: string,
     payload: Partial<SetCommissionRequest>
   ): Promise<SetCommissionResponse> => {
-    const response = await apiClient.post<SetCommissionResponse>(
-      `/dashboard/admin/agents/products`,
+    const response = await apiClient.put<SetCommissionResponse>(
+      `/dashboard/agent/products/${productId}/commission`,
       { ...payload, productIdentifier: payload.productIdentifier || productId }
     );
     return response.data;
@@ -628,7 +628,7 @@ export const agentAdminService = {
 
   /**
    * Remove commission rule from a product
-   * DELETE /api/v1/dashboard/admin/agents/products/:productId
+   * DELETE /api/v1/dashboard/agent/products/:productId/commission
    */
   removeProductCommission: async (
     productId: string
@@ -636,13 +636,13 @@ export const agentAdminService = {
     const response = await apiClient.delete<{
       success: boolean;
       message: string;
-    }>(`/dashboard/admin/agents/products/${productId}`);
+    }>(`/dashboard/agent/products/${productId}/commission`);
     return response.data;
   },
 
   /**
    * Get list of all agents
-   * GET /api/v1/dashboard/admin/agents?page=1&limit=20
+   * GET /api/v1/dashboard/agents?page=1&limit=20
    */
   getAgents: async (
     page: number = 1,
@@ -652,7 +652,7 @@ export const agentAdminService = {
       | ApiResponse<AgentPaginatedResponse<Agent> | Agent[]>
       | AgentPaginatedResponse<Agent>
       | Agent[]
-    >(`/dashboard/admin/agents?page=${page}&limit=${limit}`);
+    >(`/dashboard/agents?page=${page}&limit=${limit}`);
     const normalized = normalizePaginatedResponse<UnknownRecord>(
       response.data as any
     );
@@ -668,7 +668,7 @@ export const agentAdminService = {
    */
   getAgentDetails: async (agentUserId: string): Promise<Agent> => {
     const response = await apiClient.get<ApiResponse<Agent> | Agent>(
-      `/dashboard/admin/agents/${agentUserId}/details`
+      `/dashboard/agents/${agentUserId}/details`
     );
     return normalizeAgent(unwrapApiData<UnknownRecord>(response.data as any));
   },
@@ -698,7 +698,7 @@ export const agentAdminService = {
       | ApiResponse<AgentPaginatedResponse<AgentCustomer> | AgentCustomer[]>
       | AgentPaginatedResponse<AgentCustomer>
       | AgentCustomer[]
-    >(`/dashboard/admin/agents/${agentUserId}/customers?${params.toString()}`);
+    >(`/dashboard/agents/${agentUserId}/customers?${params.toString()}`);
     const normalized = normalizePaginatedResponse<UnknownRecord>(
       response.data as any
     );
@@ -722,7 +722,7 @@ export const agentAdminService = {
       | AgentPaginatedResponse<AgentCommission>
       | AgentCommission[]
     >(
-      `/dashboard/admin/agents/${agentUserId}/commissions?page=${page}&limit=${limit}`
+      `/dashboard/agents/${agentUserId}/commissions?page=${page}&limit=${limit}`
     );
     const normalized = normalizePaginatedResponse<UnknownRecord>(
       response.data as any
@@ -743,7 +743,7 @@ export const agentAdminService = {
     const response = await apiClient.post<{
       success: boolean;
       message: string;
-    }>(`/dashboard/admin/agents/${agentUserId}/deactivate`);
+    }>(`/dashboard/agents/${agentUserId}/disable`);
     return response.data;
   },
 
@@ -757,7 +757,7 @@ export const agentAdminService = {
     const response = await apiClient.post<{
       success: boolean;
       message: string;
-    }>(`/dashboard/admin/agents/${agentUserId}/reactivate`);
+    }>(`/dashboard/agents/${agentUserId}/enable`);
     return response.data;
   },
 };
