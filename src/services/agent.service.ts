@@ -592,7 +592,7 @@ export const agentAdminService = {
   getProductCommissions: async (): Promise<AgentProduct[]> => {
     const response = await apiClient.get<
       ApiResponse<AgentProduct[]> | AgentProduct[]
-    >(`/dashboard/admin/agents/products`);
+    >(`/dashboard/admin/agents/products?isActive=true`);
     return normalizeListResponse(response.data);
   },
 
