@@ -304,10 +304,14 @@ export function useRemoveProductCommission() {
 /**
  * Get all agents with pagination
  */
-export function useAgents(page: number = 1, limit: number = 20) {
+export function useAgents(
+  page: number = 1,
+  limit: number = 20,
+  search?: string
+) {
   return useQuery({
-    queryKey: agentKeys.agents(page, limit),
-    queryFn: () => agentAdminService.getAgents(page, limit),
+    queryKey: [...agentKeys.agents(page, limit), search || ""] as const,
+    queryFn: () => agentAdminService.getAgents(page, limit, search),
   });
 }
 

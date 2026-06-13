@@ -23,19 +23,19 @@ import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const AGENTS_PAGE_SIZE = 20;
-const AGENTS_FETCH_LIMIT = 1000;
 
 export default function AdminAgentsPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 300);
   const { data, error, isError, isLoading, refetch } = useAgents(
-    1,
-    AGENTS_FETCH_LIMIT
+    page,
+    AGENTS_PAGE_SIZE,
+    debouncedSearch.trim()
   );
   const { mutate: disableAgent, isPending: disabling } = useDisableAgent();
   const { mutate: enableAgent, isPending: enabling } = useEnableAgent();
@@ -46,43 +46,14 @@ export default function AdminAgentsPage() {
   const formatCount = (value: number | string | null | undefined) =>
     Number(value ?? 0).toLocaleString();
 
-  const agents = useMemo(() => {
-    return Array.isArray(data?.data) ? data.data : [];
-  }, [data]);
+  const agents = Array.isArray(data?.data) ? data.data : [];
   const searchTerm = debouncedSearch.trim().toLowerCase();
-  const filteredAgents = useMemo(() => {
-    if (!searchTerm) return agents;
-
-    return agents.filter((agent) => {
-      const searchableText = [
-        agent.agentCode,
-        agent.fullName,
-        agent.email,
-        agent.phoneNumber,
-        agent.userId,
-        agent.isActive ? "active" : "inactive",
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(searchTerm);
-    });
-  }, [agents, searchTerm]);
-  const totalAgents = agents.length;
-  const totalFilteredAgents = filteredAgents.length;
-  const totalPages = Math.max(
-    1,
-    Math.ceil(totalFilteredAgents / AGENTS_PAGE_SIZE)
-  );
+  const totalAgents = data?.pagination?.total ?? agents.length;
+  const totalPages = Math.max(1, data?.pagination?.totalPages ?? 1);
   const safePage = Math.min(page, totalPages);
-  const pagedAgents = filteredAgents.slice(
-    (safePage - 1) * AGENTS_PAGE_SIZE,
-    safePage * AGENTS_PAGE_SIZE
-  );
   const firstResult =
-    totalFilteredAgents === 0 ? 0 : (safePage - 1) * AGENTS_PAGE_SIZE + 1;
-  const lastResult = Math.min(safePage * AGENTS_PAGE_SIZE, totalFilteredAgents);
+    totalAgents === 0 ? 0 : (safePage - 1) * AGENTS_PAGE_SIZE + 1;
+  const lastResult = Math.min(safePage * AGENTS_PAGE_SIZE, totalAgents);
   const isSearchActive = Boolean(searchTerm);
 
   const handleToggleStatus = (agentId: string, isActive: boolean) => {
@@ -158,7 +129,7 @@ export default function AdminAgentsPage() {
               <CardTitle>All Agents</CardTitle>
               <CardDescription>
                 {isSearchActive
-                  ? `${totalFilteredAgents.toLocaleString()} matching ${totalAgents.toLocaleString()} total agents`
+                  ? `${totalAgents.toLocaleString()} matching agents`
                   : `Total agents: ${totalAgents.toLocaleString()}`}
               </CardDescription>
             </div>
@@ -191,7 +162,7 @@ export default function AdminAgentsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {pagedAgents.length === 0 ? (
+            {agents.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-gray-500">
                   {isSearchActive
@@ -217,7 +188,7 @@ export default function AdminAgentsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {pagedAgents.map((agent) => (
+                      {agents.map((agent) => (
                         <TableRow key={agent.id}>
                           <TableCell className="font-mono font-bold">
                             {agent.agentCode}
@@ -285,12 +256,12 @@ export default function AdminAgentsPage() {
                 </div>
 
                 {/* Pagination */}
-                {totalFilteredAgents > AGENTS_PAGE_SIZE && (
+                {totalAgents > AGENTS_PAGE_SIZE && (
                   <div className="mt-6 flex items-center justify-between border-t pt-6">
                     <div className="text-sm text-gray-600">
                       Showing {firstResult.toLocaleString()}-
                       {lastResult.toLocaleString()} of{" "}
-                      {totalFilteredAgents.toLocaleString()} agents
+                      {totalAgents.toLocaleString()} agents
                     </div>
                     <div className="flex gap-2">
                       <Button

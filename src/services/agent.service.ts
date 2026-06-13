@@ -587,48 +587,48 @@ export const agentUserService = {
 export const agentAdminService = {
   /**
    * Get all products with their commission rules
-   * GET /api/v1/dashboard/admin/agents/products
+   * GET /api/v1/dashboard/agent/products
    */
   getProductCommissions: async (): Promise<AgentProduct[]> => {
     const response = await apiClient.get<
       ApiResponse<AgentProduct[]> | AgentProduct[]
-    >(`/dashboard/admin/agents/products?isActive=true`);
+    >(`/dashboard/agent/products?isActive=true`);
     return normalizeListResponse(response.data);
   },
 
   /**
    * Attach commission rule to a product
-   * POST /api/v1/dashboard/admin/agents/products
+   * POST /api/v1/dashboard/agent/products/:productId/commission
    */
   attachProductCommission: async (
     productId: string,
     payload: SetCommissionRequest
   ): Promise<SetCommissionResponse> => {
     const response = await apiClient.post<SetCommissionResponse>(
-      `/dashboard/admin/agents/products`,
-      { ...payload, productIdentifier: payload.productIdentifier || productId }
+      `/dashboard/agent/products/${productId}/commission`,
+      payload
     );
     return response.data;
   },
 
   /**
    * Update commission rule for a product
-   * POST /api/v1/dashboard/admin/agents/products
+   * PUT /api/v1/dashboard/agent/products/:productId/commission
    */
   updateProductCommission: async (
     productId: string,
     payload: Partial<SetCommissionRequest>
   ): Promise<SetCommissionResponse> => {
-    const response = await apiClient.post<SetCommissionResponse>(
-      `/dashboard/admin/agents/products`,
-      { ...payload, productIdentifier: payload.productIdentifier || productId }
+    const response = await apiClient.put<SetCommissionResponse>(
+      `/dashboard/agent/products/${productId}/commission`,
+      payload
     );
     return response.data;
   },
 
   /**
    * Remove commission rule from a product
-   * DELETE /api/v1/dashboard/admin/agents/products/:productId
+   * DELETE /api/v1/dashboard/agent/products/:productId/commission
    */
   removeProductCommission: async (
     productId: string
@@ -636,7 +636,7 @@ export const agentAdminService = {
     const response = await apiClient.delete<{
       success: boolean;
       message: string;
-    }>(`/dashboard/admin/agents/products/${productId}`);
+    }>(`/dashboard/agent/products/${productId}/commission`);
     return response.data;
   },
 
@@ -646,13 +646,21 @@ export const agentAdminService = {
    */
   getAgents: async (
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
+    search?: string
   ): Promise<AgentPaginatedResponse<Agent>> => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (search?.trim()) {
+      params.append("search", search.trim());
+    }
+
     const response = await apiClient.get<
       | ApiResponse<AgentPaginatedResponse<Agent> | Agent[]>
       | AgentPaginatedResponse<Agent>
       | Agent[]
-    >(`/dashboard/agents?page=${page}&limit=${limit}`);
+    >(`/dashboard/agents?${params.toString()}`);
     const normalized = normalizePaginatedResponse<UnknownRecord>(
       response.data as any
     );
