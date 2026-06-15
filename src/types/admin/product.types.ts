@@ -21,14 +21,23 @@ export interface Product {
   has_cashback?: boolean;
   cashbackPercentage?: number;
   cashback_percentage?: number;
-  metadata?: Record<string, unknown>;
-  slug?: string | null;
+  priceTags?: ProductPriceTags;
+  resolvedPrice?: number;
+  resolvedPriceTag?: keyof ProductPriceTags | null;
   bundleBaseProductId?: string | null;
   bundleRepeatCount?: number | null;
+  metadata?: Record<string, unknown>;
+  slug?: string | null;
   createdAt?: string;
   updatedAt?: string;
   // Mappings array from API
   mappings?: SupplierProductMapping[];
+}
+
+export interface ProductPriceTags {
+  user?: number;
+  reseller?: number;
+  api?: number;
 }
 
 // ============= Supplier Mapping Entity =============
@@ -69,17 +78,21 @@ export interface CreateProductRequest {
   name: string;
   productType: string;
   denomAmount: number;
+  priceTags?: ProductPriceTags;
+  userPrice?: number;
+  resellerPrice?: number;
+  apiPrice?: number;
   dataMb?: number;
   validityDays?: number;
   isActive?: boolean;
+  bundleBaseProductId?: string | null;
+  bundleRepeatCount?: number | null;
   metadata?: Record<string, unknown>;
   // Cashback fields
   has_cashback?: boolean;
   cashback_percentage?: number;
   // Category
   categoryId?: string;
-  bundleBaseProductId?: string | null;
-  bundleRepeatCount?: number | null;
   // Optional supplier mapping fields (creates mapping if provided)
   supplierId?: string;
   supplierProductCode?: string;
@@ -95,16 +108,20 @@ export interface UpdateProductRequest {
   productCode?: string;
   productType?: string;
   denomAmount?: number;
+  priceTags?: ProductPriceTags;
+  userPrice?: number;
+  resellerPrice?: number;
+  apiPrice?: number;
   dataMb?: number;
   validityDays?: number;
   isActive?: boolean;
+  bundleBaseProductId?: string | null;
+  bundleRepeatCount?: number | null;
   has_cashback?: boolean;
   cashback_percentage?: number;
   metadata?: Record<string, unknown>;
   // Category
   categoryId?: string;
-  bundleBaseProductId?: string | null;
-  bundleRepeatCount?: number | null;
 }
 
 export interface MapProductToSupplierRequest {

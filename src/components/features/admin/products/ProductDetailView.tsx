@@ -31,13 +31,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
-  useAdminProducts,
   useAdminProduct,
+  useAdminProducts,
   useMapProductToSupplier,
   useUpdateProduct,
   useUpdateProductSupplierMapping,
 } from "@/hooks/admin/useAdminProducts";
 import { useAdminSuppliers } from "@/hooks/admin/useAdminSuppliers";
+import type { ProductPriceTags } from "@/types/admin/product.types";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -72,6 +73,9 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
   const [editProductCode, setEditProductCode] = useState("");
   const [editProductType, setEditProductType] = useState("");
   const [editDenomAmount, setEditDenomAmount] = useState(0);
+  const [editUserPrice, setEditUserPrice] = useState<number | "">("");
+  const [editResellerPrice, setEditResellerPrice] = useState<number | "">("");
+  const [editApiPrice, setEditApiPrice] = useState<number | "">("");
   const [editBundleBaseProductId, setEditBundleBaseProductId] =
     useState("__none");
   const [editBundleRepeatCount, setEditBundleRepeatCount] = useState<
@@ -96,7 +100,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
   const [mapLeadTime, setMapLeadTime] = useState<number | undefined>();
   const [mapIsActive, setMapIsActive] = useState(true);
 
-  // Edit supplier mapping form state
+  // Edit mapping form state
   const [editMappingSupplierId, setEditMappingSupplierId] = useState("");
   const [editMappingSupplierCode, setEditMappingSupplierCode] = useState("");
   const [editMappingPrice, setEditMappingPrice] = useState(0);
@@ -112,10 +116,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
   const [editMappingIsActive, setEditMappingIsActive] = useState(true);
 
   const product = data?.data;
-  const allProducts = useMemo(
-    () => productsData?.data?.products || [],
-    [productsData?.data?.products]
-  );
+  const allProducts = productsData?.data?.products || [];
   const suppliers = suppliersData?.data?.suppliers || [];
   const baseProductById = useMemo(
     () => new Map(allProducts.map((candidate) => [candidate.id, candidate])),
@@ -142,10 +143,13 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
       const currentBase = allProducts.find(
         (candidate) => candidate.id === product.bundleBaseProductId
       );
-      if (currentBase) return [...validBaseProducts, currentBase];
+
+      if (currentBase) {
+        return [...validBaseProducts, currentBase];
+      }
     }
 
-    return validBaseProducts.sort((a, b) => a.name.localeCompare(b.name));
+    return validBaseProducts;
   }, [allProducts, product]);
 
   const handleEdit = () => {
@@ -154,6 +158,9 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
       setEditProductCode(product.productCode);
       setEditProductType(product.productType);
       setEditDenomAmount(product.denomAmount);
+      setEditUserPrice(product.priceTags?.user ?? "");
+      setEditResellerPrice(product.priceTags?.reseller ?? "");
+      setEditApiPrice(product.priceTags?.api ?? "");
       setEditBundleBaseProductId(product.bundleBaseProductId ?? "__none");
       setEditBundleRepeatCount(product.bundleRepeatCount ?? 2);
       setEditDataMb(product.dataMb ?? undefined);
@@ -168,16 +175,34 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
   };
 
   const handleSaveEdit = () => {
+    const hasCustomPriceTags =
+      typeof editUserPrice === "number" ||
+      typeof editResellerPrice === "number" ||
+      typeof editApiPrice === "number";
+
+    const priceTags: ProductPriceTags | undefined = hasCustomPriceTags
+      ? {
+          ...(typeof editUserPrice === "number" ? { user: editUserPrice } : {}),
+          ...(typeof editResellerPrice === "number"
+            ? { reseller: editResellerPrice }
+            : {}),
+          ...(typeof editApiPrice === "number" ? { api: editApiPrice } : {}),
+        }
+      : undefined;
+
     const payload = {
       name: editName,
       productCode: editProductCode,
       productType: editProductType,
       denomAmount: editDenomAmount,
-      dataMb: editDataMb,
-      validityDays: editValidityDays,
-      isActive: editIsActive,
-      has_cashback: editHasCashback,
-      cashback_percentage: editHasCashback ? editCashbackPercentage : undefined,
+      ...(priceTags ? { priceTags } : {}),
+      ...(typeof editUserPrice === "number"
+        ? { userPrice: editUserPrice }
+        : {}),
+      ...(typeof editResellerPrice === "number"
+        ? { resellerPrice: editResellerPrice }
+        : {}),
+      ...(typeof editApiPrice === "number" ? { apiPrice: editApiPrice } : {}),
       bundleBaseProductId:
         editBundleBaseProductId !== "__none" ? editBundleBaseProductId : null,
       bundleRepeatCount:
@@ -186,6 +211,11 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
             ? editBundleRepeatCount
             : 2
           : null,
+      dataMb: editDataMb,
+      validityDays: editValidityDays,
+      isActive: editIsActive,
+      has_cashback: editHasCashback,
+      cashback_percentage: editHasCashback ? editCashbackPercentage : undefined,
     };
 
     console.log("[ProductDetailView] Updating payload:", payload);
@@ -252,24 +282,27 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
   const handleSaveEditMapping = () => {
     if (!editingMappingId) return;
 
+    const payload = {
+      supplierId: editMappingSupplierId,
+      supplierProductCode: editMappingSupplierCode,
+      supplierPrice: editMappingPrice,
+      minOrderAmount: editMappingMinOrder,
+      maxOrderAmount: editMappingMaxOrder,
+      leadTimeSeconds: editMappingLeadTime,
+      isActive: editMappingIsActive,
+    };
+
     updateMappingMutation.mutate(
       {
         productId,
         mappingId: editingMappingId,
-        data: {
-          supplierId: editMappingSupplierId,
-          supplierProductCode: editMappingSupplierCode,
-          supplierPrice: editMappingPrice,
-          minOrderAmount: editMappingMinOrder,
-          maxOrderAmount: editMappingMaxOrder,
-          leadTimeSeconds: editMappingLeadTime,
-          isActive: editMappingIsActive,
-        },
+        data: payload,
       },
       {
         onSuccess: () => {
           setIsEditMappingOpen(false);
           setEditingMappingId(null);
+          // Reset form
           setEditMappingSupplierId("");
           setEditMappingSupplierCode("");
           setEditMappingPrice(0);
@@ -334,7 +367,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                 Map to Supplier
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
+            <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>Map Product to Supplier</DialogTitle>
                 <DialogDescription>
@@ -486,12 +519,11 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                   <Input
                     value={editMappingSupplierCode}
                     onChange={(e) => setEditMappingSupplierCode(e.target.value)}
-                    placeholder="e.g., PROD_MTN_1GB"
-                    className="font-mono"
+                    placeholder="e.g., SUPPLIER-SKU-123"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Supplier Price (₦)</Label>
+                  <Label>Price (₦)</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -499,6 +531,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                     onChange={(e) =>
                       setEditMappingPrice(Number(e.target.value))
                     }
+                    placeholder="0.00"
                   />
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -583,7 +616,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                 Edit Product
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit Product</DialogTitle>
                 <DialogDescription>Update product details.</DialogDescription>
@@ -618,6 +651,56 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                     value={editDenomAmount}
                     onChange={(e) => setEditDenomAmount(Number(e.target.value))}
                   />
+                </div>
+                <div className="space-y-4 rounded-lg border p-4">
+                  <div className="space-y-1">
+                    <Label className="text-base">Role-Based Prices</Label>
+                    <p className="text-muted-foreground text-xs">
+                      Leave a field empty to keep the product amount fallback
+                      for that role.
+                    </p>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label>User Price (₦)</Label>
+                      <Input
+                        type="number"
+                        value={editUserPrice}
+                        onChange={(e) =>
+                          setEditUserPrice(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
+                        }
+                        placeholder="Fallback: amount"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Reseller Price (₦)</Label>
+                      <Input
+                        type="number"
+                        value={editResellerPrice}
+                        onChange={(e) =>
+                          setEditResellerPrice(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
+                        }
+                        placeholder="Fallback: user price"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>API Price (₦)</Label>
+                      <Input
+                        type="number"
+                        value={editApiPrice}
+                        onChange={(e) =>
+                          setEditApiPrice(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
+                        }
+                        placeholder="Fallback: reseller price"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-4 rounded-lg border border-dashed p-4">
                   <div className="space-y-1">
@@ -731,7 +814,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                   </div>
                 )}
               </div>
-              <DialogFooter>
+              <DialogFooter className="bg-background sticky bottom-0 mt-2 border-t pt-4">
                 <Button
                   variant="outline"
                   onClick={() => setIsEditOpen(false)}
@@ -783,9 +866,60 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                 value={`${
                   baseProductById.get(product.bundleBaseProductId)?.name ||
                   product.bundleBaseProductId
-                } x ${product.bundleRepeatCount || 2}`}
+                } × ${product.bundleRepeatCount || 2}`}
               />
             )}
+            <div className="space-y-3 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Role-Based Prices</span>
+                {product.resolvedPrice !== undefined && (
+                  <Badge variant="outline" className="text-xs">
+                    {product.resolvedPriceTag || "resolved"}: ₦
+                    {product.resolvedPrice.toLocaleString()}
+                  </Badge>
+                )}
+              </div>
+              <div className="grid gap-3 text-sm md:grid-cols-3">
+                <div className="bg-muted/50 rounded-md p-3">
+                  <div className="text-muted-foreground text-xs uppercase">
+                    User
+                  </div>
+                  <div className="font-medium">
+                    ₦
+                    {(
+                      product.priceTags?.user ?? product.denomAmount
+                    )?.toLocaleString()}
+                  </div>
+                </div>
+                <div className="bg-muted/50 rounded-md p-3">
+                  <div className="text-muted-foreground text-xs uppercase">
+                    Reseller
+                  </div>
+                  <div className="font-medium">
+                    ₦
+                    {(
+                      product.priceTags?.reseller ??
+                      product.priceTags?.user ??
+                      product.denomAmount
+                    )?.toLocaleString()}
+                  </div>
+                </div>
+                <div className="bg-muted/50 rounded-md p-3">
+                  <div className="text-muted-foreground text-xs uppercase">
+                    API
+                  </div>
+                  <div className="font-medium">
+                    ₦
+                    {(
+                      product.priceTags?.api ??
+                      product.priceTags?.reseller ??
+                      product.priceTags?.user ??
+                      product.denomAmount
+                    )?.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            </div>
             {product.dataMb && (
               <InfoRow label="Data" value={`${product.dataMb} MB`} />
             )}

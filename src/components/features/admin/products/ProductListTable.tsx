@@ -39,10 +39,7 @@ export function ProductListTable() {
   const { data, isLoading, isError, refetch } = useAdminProducts();
   const { data: operatorsData } = useAdminOperators();
 
-  const allProducts = useMemo(
-    () => data?.data?.products || [],
-    [data?.data?.products]
-  );
+  const allProducts = data?.data?.products || [];
   const operators = operatorsData?.data?.operators || [];
   const productById = useMemo(
     () => new Map(allProducts.map((product) => [product.id, product])),
@@ -138,18 +135,8 @@ export function ProductListTable() {
           ) : (
             products.map((product: Product) => (
               <TableRow key={product.id}>
-                <TableCell className="max-w-[220px]">
-                  <div className="space-y-1">
-                    <p className="truncate font-medium">{product.name}</p>
-                    {product.bundleBaseProductId && (
-                      <Badge variant="outline" className="text-[10px]">
-                        Bundle:{" "}
-                        {productById.get(product.bundleBaseProductId)?.name ||
-                          product.bundleBaseProductId}{" "}
-                        x {product.bundleRepeatCount || 2}
-                      </Badge>
-                    )}
-                  </div>
+                <TableCell className="max-w-[200px] truncate font-medium">
+                  {product.name}
                 </TableCell>
                 <TableCell className="max-w-[120px]">
                   <code className="bg-muted block truncate rounded px-1.5 py-0.5 text-xs">
@@ -165,7 +152,36 @@ export function ProductListTable() {
                   <Badge variant="secondary">{product.productType}</Badge>
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  ₦{product.denomAmount?.toLocaleString()}
+                  <div className="space-y-1">
+                    <div>₦{product.denomAmount?.toLocaleString()}</div>
+                    <div className="text-muted-foreground text-[11px] leading-tight">
+                      U: ₦
+                      {(
+                        product.priceTags?.user ?? product.denomAmount
+                      )?.toLocaleString()}
+                      {" · "}R: ₦
+                      {(
+                        product.priceTags?.reseller ??
+                        product.priceTags?.user ??
+                        product.denomAmount
+                      )?.toLocaleString()}
+                      {" · "}API: ₦
+                      {(
+                        product.priceTags?.api ??
+                        product.priceTags?.reseller ??
+                        product.priceTags?.user ??
+                        product.denomAmount
+                      )?.toLocaleString()}
+                    </div>
+                    {product.bundleBaseProductId && (
+                      <div className="text-muted-foreground text-[11px] leading-tight">
+                        Bundle:{" "}
+                        {productById.get(product.bundleBaseProductId)?.name ||
+                          product.bundleBaseProductId}{" "}
+                        × {product.bundleRepeatCount || 2}
+                      </div>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {product.dataMb ? `${product.dataMb} MB` : "—"}

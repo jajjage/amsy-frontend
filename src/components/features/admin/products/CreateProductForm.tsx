@@ -26,10 +26,11 @@ import {
   useCreateProduct,
 } from "@/hooks/admin/useAdminProducts";
 import { useAdminSuppliers } from "@/hooks/admin/useAdminSuppliers";
+import type { ProductPriceTags } from "@/types/admin/product.types";
 import { ArrowLeft, Loader2, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function CreateProductForm() {
   const router = useRouter();
@@ -46,14 +47,17 @@ export function CreateProductForm() {
   const [productType, setProductType] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [denomAmount, setDenomAmount] = useState<number | "">("");
+  const [userPrice, setUserPrice] = useState<number | "">("");
+  const [resellerPrice, setResellerPrice] = useState<number | "">("");
+  const [apiPrice, setApiPrice] = useState<number | "">("");
+  const [bundleBaseProductId, setBundleBaseProductId] = useState("__none");
+  const [bundleRepeatCount, setBundleRepeatCount] = useState<number | "">(2);
   const [dataMb, setDataMb] = useState<number | undefined>();
   const [validityDays, setValidityDays] = useState<number | undefined>();
   const [isActive, setIsActive] = useState(true);
   const [hasCashback, setHasCashback] = useState(false);
   const [cashbackPercentage, setCashbackPercentage] = useState("");
   const [metadata, setMetadata] = useState("");
-  const [bundleBaseProductId, setBundleBaseProductId] = useState("__none");
-  const [bundleRepeatCount, setBundleRepeatCount] = useState<number | "">(2);
 
   // Optional supplier mapping fields
   const [includeMapping, setIncludeMapping] = useState(false);
@@ -66,26 +70,31 @@ export function CreateProductForm() {
   const [mappingIsActive, setMappingIsActive] = useState(true);
 
   const operators = operatorsData?.data?.operators || [];
-  const allProducts = useMemo(
-    () => productsData?.data?.products || [],
-    [productsData?.data?.products]
-  );
+  const allProducts = productsData?.data?.products || [];
   const suppliers = suppliersData?.data?.suppliers || [];
   const categories = categoriesData || [];
+
   const bundleBaseProducts = useMemo(() => {
     return allProducts
       .filter((product) => {
-        const sameOperator = operatorId ? product.operatorId === operatorId : true;
+        const sameOperator = operatorId
+          ? product.operatorId === operatorId
+          : true;
+
         return sameOperator && product.isActive && !product.bundleBaseProductId;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts, operatorId]);
-  const effectiveBundleBaseProductId =
-    bundleBaseProductId !== "__none" &&
-    bundleBaseProducts.some((product) => product.id === bundleBaseProductId)
-      ? bundleBaseProductId
-      : "__none";
-  const isBundleWrapper = effectiveBundleBaseProductId !== "__none";
+
+  useEffect(() => {
+    if (
+      bundleBaseProductId !== "__none" &&
+      !bundleBaseProducts.some((product) => product.id === bundleBaseProductId)
+    ) {
+      setBundleBaseProductId("__none");
+      setBundleRepeatCount(2);
+    }
+  }, [bundleBaseProductId, bundleBaseProducts]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,12 +112,31 @@ export function CreateProductForm() {
       }
     }
 
+    const hasCustomPriceTags =
+      typeof userPrice === "number" ||
+      typeof resellerPrice === "number" ||
+      typeof apiPrice === "number";
+
+    const priceTags: ProductPriceTags | undefined = hasCustomPriceTags
+      ? {
+          ...(typeof userPrice === "number" ? { user: userPrice } : {}),
+          ...(typeof resellerPrice === "number"
+            ? { reseller: resellerPrice }
+            : {}),
+          ...(typeof apiPrice === "number" ? { api: apiPrice } : {}),
+        }
+      : undefined;
+
     const payload = {
       operatorId,
       productCode,
       name,
       productType,
       denomAmount: typeof denomAmount === "number" ? denomAmount : 0,
+      ...(priceTags ? { priceTags } : {}),
+      ...(typeof userPrice === "number" ? { userPrice } : {}),
+      ...(typeof resellerPrice === "number" ? { resellerPrice } : {}),
+      ...(typeof apiPrice === "number" ? { apiPrice } : {}),
       dataMb,
       validityDays,
       isActive,
@@ -117,20 +145,17 @@ export function CreateProductForm() {
         hasCashback && cashbackPercentage
           ? parseFloat(cashbackPercentage)
           : undefined,
-      metadata: parsedMetadata,
-      categoryId: categoryId || undefined,
-      ...(isBundleWrapper
+      ...(bundleBaseProductId !== "__none"
         ? {
-            bundleBaseProductId: effectiveBundleBaseProductId,
+            bundleBaseProductId,
             bundleRepeatCount:
               typeof bundleRepeatCount === "number" ? bundleRepeatCount : 2,
           }
-        : {
-            bundleBaseProductId: null,
-            bundleRepeatCount: null,
-          }),
+        : {}),
+      metadata: parsedMetadata,
+      categoryId: categoryId || undefined,
       // Include supplier mapping if enabled
-      ...(includeMapping && !isBundleWrapper && supplierId
+      ...(includeMapping && supplierId
         ? {
             supplierId,
             supplierProductCode,
@@ -258,6 +283,128 @@ export function CreateProductForm() {
               </div>
             </div>
 
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="space-y-1">
+                <Label className="text-base">Role-Based Prices</Label>
+                <p className="text-muted-foreground text-xs">
+                  Optional. Leave these empty to keep the product amount as the
+                  fallback for all roles.
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="userPrice">User Price (₦)</Label>
+                  <Input
+                    id="userPrice"
+                    type="number"
+                    value={userPrice}
+                    onChange={(e) =>
+                      setUserPrice(e.target.value ? Number(e.target.value) : "")
+                    }
+                    placeholder="Fallback: amount"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resellerPrice">Reseller Price (₦)</Label>
+                  <Input
+                    id="resellerPrice"
+                    type="number"
+                    value={resellerPrice}
+                    onChange={(e) =>
+                      setResellerPrice(
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
+                    placeholder="Fallback: user price"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="apiPrice">API Price (₦)</Label>
+                  <Input
+                    id="apiPrice"
+                    type="number"
+                    value={apiPrice}
+                    onChange={(e) =>
+                      setApiPrice(e.target.value ? Number(e.target.value) : "")
+                    }
+                    placeholder="Fallback: reseller price"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-lg border border-dashed p-4">
+              <div className="space-y-1">
+                <Label className="text-base">Bundle Fulfillment</Label>
+                <p className="text-muted-foreground text-xs">
+                  Optional. Select an existing active product to use as the
+                  hidden supplier base for this product. The selected base
+                  product will be purchased repeatedly behind the scenes.
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="bundleBaseProductId">Base Product</Label>
+                  <Select
+                    value={bundleBaseProductId}
+                    onValueChange={(value) =>
+                      setBundleBaseProductId(
+                        value === "__none" ? "__none" : value
+                      )
+                    }
+                    disabled={bundleBaseProducts.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          bundleBaseProducts.length > 0
+                            ? "No bundle"
+                            : "No eligible base products"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none">No bundle</SelectItem>
+                      {bundleBaseProducts.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          {product.name} ({product.productCode})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bundleRepeatCount">Repeat Count</Label>
+                  <Input
+                    id="bundleRepeatCount"
+                    type="number"
+                    min={2}
+                    step={1}
+                    value={bundleRepeatCount}
+                    onChange={(e) =>
+                      setBundleRepeatCount(
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
+                    placeholder="2"
+                    disabled={!bundleBaseProductId}
+                  />
+                </div>
+              </div>
+
+              {bundleBaseProductId && (
+                <p className="text-muted-foreground text-xs">
+                  This product will be treated as a wrapper and fulfilled using
+                  the selected base product.
+                </p>
+              )}
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="dataMb">Data (MB)</Label>
@@ -343,75 +490,6 @@ export function CreateProductForm() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Bundle Fulfillment</CardTitle>
-            <CardDescription>
-              Optional. Select an existing active product to use as the hidden
-              supplier base for this product. The selected base product will be
-              purchased repeatedly behind the scenes.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="bundleBaseProductId">Base Product</Label>
-                <Select
-                  value={effectiveBundleBaseProductId}
-                  onValueChange={(value) =>
-                    setBundleBaseProductId(value === "__none" ? "__none" : value)
-                  }
-                  disabled={bundleBaseProducts.length === 0}
-                >
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        bundleBaseProducts.length > 0
-                          ? "No bundle"
-                          : "No eligible base products"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none">No bundle</SelectItem>
-                    {bundleBaseProducts.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.name} ({product.productCode})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bundleRepeatCount">Repeat Count</Label>
-                <Input
-                  id="bundleRepeatCount"
-                  type="number"
-                  min={2}
-                  step={1}
-                  value={bundleRepeatCount}
-                  onChange={(e) =>
-                    setBundleRepeatCount(
-                      e.target.value ? Number(e.target.value) : ""
-                    )
-                  }
-                  placeholder="2"
-                  disabled={!isBundleWrapper}
-                />
-              </div>
-            </div>
-
-            {isBundleWrapper && (
-              <p className="text-muted-foreground text-xs">
-                This product will be treated as a wrapper and fulfilled using
-                the selected base product. Direct supplier mapping is disabled
-                for bundle wrapper products.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Supplier Mapping (Optional) */}
         <Card>
           <CardHeader>
@@ -424,10 +502,7 @@ export function CreateProductForm() {
               </div>
               <Switch
                 checked={includeMapping}
-                onCheckedChange={(checked) => {
-                  if (!isBundleWrapper) setIncludeMapping(checked);
-                }}
-                disabled={isBundleWrapper}
+                onCheckedChange={setIncludeMapping}
               />
             </div>
           </CardHeader>
