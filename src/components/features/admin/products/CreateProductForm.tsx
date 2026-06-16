@@ -27,10 +27,11 @@ import {
 } from "@/hooks/admin/useAdminProducts";
 import { useAdminSuppliers } from "@/hooks/admin/useAdminSuppliers";
 import type { ProductPriceTags } from "@/types/admin/product.types";
-import { ArrowLeft, Loader2, Package, Save } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Loader2, Package, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export function CreateProductForm() {
   const router = useRouter();
@@ -86,6 +87,19 @@ export function CreateProductForm() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts, operatorId]);
 
+  const duplicateProduct = useMemo(() => {
+    const normalizedCode = productCode.trim().toLowerCase();
+    if (!operatorId || !normalizedCode) {
+      return undefined;
+    }
+
+    return allProducts.find(
+      (product) =>
+        product.operatorId === operatorId &&
+        product.productCode.trim().toLowerCase() === normalizedCode
+    );
+  }, [allProducts, operatorId, productCode]);
+
   useEffect(() => {
     if (
       bundleBaseProductId !== "__none" &&
@@ -100,6 +114,13 @@ export function CreateProductForm() {
     e.preventDefault();
 
     if (!operatorId || !productCode || !name || !productType) {
+      return;
+    }
+
+    if (duplicateProduct) {
+      toast.error(
+        "This product code already exists. Open the existing product to edit pricing or supplier mapping."
+      );
       return;
     }
 
@@ -226,6 +247,21 @@ export function CreateProductForm() {
                   className="font-mono"
                   required
                 />
+                {duplicateProduct && (
+                  <div className="flex flex-wrap items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    <AlertTriangle className="h-4 w-4 flex-none" />
+                    <span className="min-w-0 flex-1">
+                      Product code already exists for this operator.
+                    </span>
+                    <Button asChild size="sm" variant="outline">
+                      <Link
+                        href={`/admin/dashboard/products/${duplicateProduct.id}`}
+                      >
+                        Open Product
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -612,7 +648,10 @@ export function CreateProductForm() {
           <Button type="button" variant="outline" asChild>
             <Link href="/admin/dashboard/products">Cancel</Link>
           </Button>
-          <Button type="submit" disabled={createMutation.isPending}>
+          <Button
+            type="submit"
+            disabled={createMutation.isPending || Boolean(duplicateProduct)}
+          >
             {createMutation.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
