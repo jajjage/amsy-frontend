@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -42,17 +49,42 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
   const [editName, setEditName] = useState("");
   const [editApiBase, setEditApiBase] = useState("");
   const [editApiKey, setEditApiKey] = useState("");
+  const [editVtpassAuthType, setEditVtpassAuthType] = useState<
+    "apiKey" | "basic"
+  >("apiKey");
+  const [editVtpassApiKey, setEditVtpassApiKey] = useState("");
+  const [editVtpassPublicKey, setEditVtpassPublicKey] = useState("");
+  const [editVtpassSecretKey, setEditVtpassSecretKey] = useState("");
+  const [editVtpassUsername, setEditVtpassUsername] = useState("");
+  const [editVtpassPassword, setEditVtpassPassword] = useState("");
+  const [editMssUsername, setEditMssUsername] = useState("");
+  const [editMssPassword, setEditMssPassword] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [editPriority, setEditPriority] = useState(1);
   const [editIsActive, setEditIsActive] = useState(true);
 
   const supplier = data?.data;
+  const isVtpass = supplier?.slug?.toLowerCase() === "vtpass";
+  const isMssDataSub =
+    supplier?.slug?.toLowerCase() === "mssdata" ||
+    supplier?.slug?.toLowerCase() === "mss-data" ||
+    supplier?.slug?.toLowerCase() === "mssdatasub" ||
+    supplier?.slug?.toLowerCase() === "mss-data-sub" ||
+    supplier?.slug?.toLowerCase() === "mss data sub";
 
   const handleEdit = () => {
     if (supplier) {
       setEditName(supplier.name);
       setEditApiBase(supplier.apiBase);
       setEditApiKey("");
+      setEditVtpassAuthType("apiKey");
+      setEditVtpassApiKey("");
+      setEditVtpassPublicKey("");
+      setEditVtpassSecretKey("");
+      setEditVtpassUsername("");
+      setEditVtpassPassword("");
+      setEditMssUsername("");
+      setEditMssPassword("");
       setEditPriority(supplier.priorityInt);
       setEditIsActive(supplier.isActive);
       setIsEditOpen(true);
@@ -60,13 +92,72 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
   };
 
   const handleSave = () => {
+    const hasAnyVtpassApiKey =
+      editVtpassApiKey || editVtpassPublicKey || editVtpassSecretKey;
+    const hasAnyVtpassBasicKey = editVtpassUsername || editVtpassPassword;
+    const hasAnyVtpassKey = hasAnyVtpassApiKey || hasAnyVtpassBasicKey;
+
+    const hasAnyMssKey = editMssUsername || editMssPassword;
+
+    if (
+      isVtpass &&
+      editVtpassAuthType === "apiKey" &&
+      hasAnyVtpassApiKey &&
+      (!editVtpassApiKey || !editVtpassPublicKey || !editVtpassSecretKey)
+    ) {
+      return;
+    }
+
+    if (
+      isVtpass &&
+      editVtpassAuthType === "basic" &&
+      hasAnyVtpassBasicKey &&
+      (!editVtpassUsername || !editVtpassPassword)
+    ) {
+      return;
+    }
+
+    if (
+      isMssDataSub &&
+      hasAnyMssKey &&
+      (!editMssUsername || !editMssPassword)
+    ) {
+      return;
+    }
+
+    const vtpassKeyPayload =
+      isVtpass && hasAnyVtpassKey
+        ? editVtpassAuthType === "apiKey"
+          ? JSON.stringify({
+              apiKey: editVtpassApiKey.trim(),
+              publicKey: editVtpassPublicKey.trim(),
+              secretKey: editVtpassSecretKey.trim(),
+            })
+          : JSON.stringify({
+              username: editVtpassUsername.trim(),
+              password: editVtpassPassword.trim(),
+            })
+        : "";
+
+    const mssKeyPayload =
+      isMssDataSub && hasAnyMssKey
+        ? JSON.stringify({
+            username: editMssUsername.trim(),
+            password: editMssPassword.trim(),
+          })
+        : "";
+
     updateMutation.mutate(
       {
         supplierId,
         data: {
           name: editName,
           apiBase: editApiBase,
-          ...(editApiKey && { apiKey: editApiKey }),
+          ...(isVtpass
+            ? vtpassKeyPayload && { apiKey: vtpassKeyPayload }
+            : isMssDataSub
+              ? mssKeyPayload && { apiKey: mssKeyPayload }
+              : editApiKey && { apiKey: editApiKey }),
           priorityInt: editPriority,
           isActive: editIsActive,
         },
@@ -126,15 +217,15 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
               Edit Supplier
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="flex max-h-[90vh] max-w-md flex-col">
             <DialogHeader>
               <DialogTitle>Edit Supplier</DialogTitle>
               <DialogDescription>
-                Update supplier configuration. Leave API Key empty to keep
-                current.
+                Update supplier configuration. Leave credential fields empty to
+                keep current keys.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -152,32 +243,158 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
                   className="font-mono"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="apiKey">API Key (leave empty to keep)</Label>
-                <div className="relative">
-                  <Input
-                    id="apiKey"
-                    type={showApiKey ? "text" : "password"}
-                    value={editApiKey}
-                    onChange={(e) => setEditApiKey(e.target.value)}
-                    placeholder="••••••••"
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                  >
-                    {showApiKey ? (
-                      <EyeOff className="text-muted-foreground h-4 w-4" />
-                    ) : (
-                      <Eye className="text-muted-foreground h-4 w-4" />
-                    )}
-                  </Button>
+              {isVtpass && (
+                <div className="space-y-3 rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <Label>VTpass Authentication</Label>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Fill the selected credential set only when rotating
+                        credentials.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="text-muted-foreground h-4 w-4" />
+                      ) : (
+                        <Eye className="text-muted-foreground h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vtpassAuthType">Auth Type</Label>
+                    <Select
+                      value={editVtpassAuthType}
+                      onValueChange={(value) =>
+                        setEditVtpassAuthType(value as "apiKey" | "basic")
+                      }
+                    >
+                      <SelectTrigger id="vtpassAuthType">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="apiKey">API keys</SelectItem>
+                        <SelectItem value="basic">
+                          Basic username/password
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {editVtpassAuthType === "apiKey" ? (
+                    <>
+                      <SecretInput
+                        id="vtpassApiKey"
+                        label="Static API Key"
+                        value={editVtpassApiKey}
+                        visible={showApiKey}
+                        onChange={setEditVtpassApiKey}
+                      />
+                      <SecretInput
+                        id="vtpassPublicKey"
+                        label="Public Key"
+                        value={editVtpassPublicKey}
+                        visible={showApiKey}
+                        onChange={setEditVtpassPublicKey}
+                      />
+                      <SecretInput
+                        id="vtpassSecretKey"
+                        label="Secret Key"
+                        value={editVtpassSecretKey}
+                        visible={showApiKey}
+                        onChange={setEditVtpassSecretKey}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <SecretInput
+                        id="vtpassUsername"
+                        label="Username / Email"
+                        value={editVtpassUsername}
+                        visible={showApiKey}
+                        onChange={setEditVtpassUsername}
+                      />
+                      <SecretInput
+                        id="vtpassPassword"
+                        label="Password"
+                        value={editVtpassPassword}
+                        visible={showApiKey}
+                        onChange={setEditVtpassPassword}
+                      />
+                    </>
+                  )}
                 </div>
-              </div>
+              )}
+              {isMssDataSub && (
+                <div className="space-y-3 rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <Label>Mssdatasub Credentials</Label>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Fill both fields only when rotating credentials.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="text-muted-foreground h-4 w-4" />
+                      ) : (
+                        <Eye className="text-muted-foreground h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <SecretInput
+                    id="mssUsername"
+                    label="Username"
+                    value={editMssUsername}
+                    visible={showApiKey}
+                    onChange={setEditMssUsername}
+                  />
+                  <SecretInput
+                    id="mssPassword"
+                    label="Password"
+                    value={editMssPassword}
+                    visible={showApiKey}
+                    onChange={setEditMssPassword}
+                  />
+                </div>
+              )}
+              {!isVtpass && !isMssDataSub && (
+                <div className="space-y-2">
+                  <Label htmlFor="apiKey">API Key (leave empty to keep)</Label>
+                  <div className="relative">
+                    <Input
+                      id="apiKey"
+                      type={showApiKey ? "text" : "password"}
+                      value={editApiKey}
+                      onChange={(e) => setEditApiKey(e.target.value)}
+                      placeholder="••••••••"
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="text-muted-foreground h-4 w-4" />
+                      ) : (
+                        <Eye className="text-muted-foreground h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority (lower = higher)</Label>
                 <Input
@@ -197,7 +414,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
                 />
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="border-t pt-4">
               <Button
                 variant="outline"
                 onClick={() => setIsEditOpen(false)}
@@ -251,6 +468,33 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function SecretInput({
+  id,
+  label,
+  value,
+  visible,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  visible: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type={visible ? "text" : "password"}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="leave empty to keep current"
+      />
     </div>
   );
 }

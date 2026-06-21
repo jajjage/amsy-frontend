@@ -13,8 +13,15 @@ import {
   UserSegmentsCard,
   WalletOverviewCard,
 } from "@/components/features/admin/analytics";
+import { BillPaymentAnalyticsSection } from "@/components/features/admin/bills/BillPaymentAnalyticsSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, DollarSign, Users, Wallet } from "lucide-react";
+import {
+  BarChart3,
+  DollarSign,
+  ReceiptText,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 export default function AnalyticsPage() {
   return (
@@ -34,7 +41,7 @@ export default function AnalyticsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+        <TabsList className="grid w-full max-w-4xl grid-cols-5">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Overview
@@ -50,6 +57,11 @@ export default function AnalyticsPage() {
           <TabsTrigger value="wallet" className="flex items-center gap-2">
             <Wallet className="h-4 w-4" />
             Wallet
+          </TabsTrigger>
+
+          <TabsTrigger value="bills" className="flex items-center gap-2">
+            <ReceiptText className="h-4 w-4" />
+            Bills
           </TabsTrigger>
         </TabsList>
 
@@ -104,7 +116,13 @@ export default function AnalyticsPage() {
           {/* Additional visualizations */}
           <TopupPerformanceChart />
         </TabsContent>
+
+
+        <TabsContent value="bills" className="mt-6 space-y-6">
+          <BillPaymentAnalyticsSection />
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
+
