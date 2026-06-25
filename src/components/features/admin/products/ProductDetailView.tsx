@@ -232,7 +232,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
   };
 
   const handleMapToSupplier = () => {
-    if (!mapSupplierId || !mapSupplierProductCode || !Number(mapSupplierPrice)) return;
+    if (!mapSupplierId || !mapSupplierProductCode) return;
 
     mapMutation.mutate(
       {
@@ -478,8 +478,7 @@ export function ProductDetailView({ productId }: ProductDetailViewProps) {
                   disabled={
                     mapMutation.isPending ||
                     !mapSupplierId ||
-                    !mapSupplierProductCode ||
-                    !Number(mapSupplierPrice)
+                    !mapSupplierProductCode
                   }
                 >
                   {mapMutation.isPending && (

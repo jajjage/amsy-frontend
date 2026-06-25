@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import {
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
   Phone,
   RefreshCw,
   Search,
@@ -53,6 +54,15 @@ const operatorColors: Record<string, string> = {
   GLO: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
   "9MOBILE":
     "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+};
+
+const formatForWhatsApp = (phone: string) => {
+  if (!phone) return "";
+  const cleanPhone = phone.replace(/\D/g, "");
+  if (cleanPhone.startsWith("0")) {
+    return `234${cleanPhone.substring(1)}`;
+  }
+  return cleanPhone;
 };
 
 export function TopupListTable() {
@@ -211,9 +221,22 @@ export function TopupListTable() {
                     {/* User */}
                     <TableCell>
                       <div>
-                        <p className="font-medium">
-                          {req.user?.fullName || "Unknown"}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">
+                            {req.user?.fullName || "Unknown"}
+                          </p>
+                          {req.user?.phoneNumber && (
+                            <a
+                              href={`https://wa.me/${formatForWhatsApp(req.user.phoneNumber)}?text=${encodeURIComponent(`Hello ${req.user.fullName || "there"}, this is AMSY Data Sub admin regarding your recent topup request. `)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="rounded-full p-1 text-green-600 transition-colors hover:bg-green-50 hover:text-green-700"
+                              title="Message User on WhatsApp"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
                         <p className="text-muted-foreground text-xs">
                           {req.user?.email || req.userId}
                         </p>
@@ -226,6 +249,15 @@ export function TopupListTable() {
                         <div className="flex items-center gap-1.5">
                           <Phone className="text-muted-foreground h-3 w-3" />
                           <span className="text-sm">{req.recipientPhone}</span>
+                          <a
+                            href={`https://wa.me/${formatForWhatsApp(req.recipientPhone)}?text=${encodeURIComponent("Hello, this is AMSY Data Sub admin regarding a recent topup. ")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-1 rounded-full p-1 text-green-600 transition-colors hover:bg-green-50 hover:text-green-700"
+                            title="Message Recipient on WhatsApp"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" />
+                          </a>
                         </div>
                       ) : (
                         <span className="text-muted-foreground">—</span>
