@@ -1,5 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import {
+  convertDenomAmountToNumber,
+  getResolvedProductPrice,
+} from "@/utils/reseller-products";
 import { Product } from "@/types/product.types";
 
 interface ProductCardProps {
@@ -46,7 +50,9 @@ export function ProductCard({
   const mainDisplayText = formatMainDisplay(product);
 
   // 2. Determine Price
-  const faceValue = parseFloat(product.denomAmount || "0");
+  const faceValue =
+    getResolvedProductPrice(product) ??
+    convertDenomAmountToNumber(product.denomAmount);
   const supplierOffer = product.supplierOffers?.[0];
 
   // Parse supplier price, fallback to faceValue if missing or 0
@@ -60,7 +66,9 @@ export function ProductCard({
 
   // Calculate base selling price (with markup)
   const actualMarkup = markupPercent < 1 ? markupPercent : markupPercent / 100;
-  const baseSellingPrice = supplierPrice + supplierPrice * actualMarkup;
+  const baseSellingPrice = product.resolvedPrice
+    ? faceValue
+    : supplierPrice + supplierPrice * actualMarkup;
 
   // 3. Offer Logic (Two-Request Merge pattern)
   const hasOffer = !!product.activeOffer;

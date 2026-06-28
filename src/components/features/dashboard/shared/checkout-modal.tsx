@@ -11,6 +11,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import {
+  convertDenomAmountToNumber,
+  getResolvedProductPrice,
+} from "@/utils/reseller-products";
 import { Product } from "@/types/product.types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, Info, Share2, X, XCircle } from "lucide-react";
@@ -63,7 +67,9 @@ export function CheckoutModal({
   }, [isOpen]);
 
   // Price calculations
-  const faceValue = parseFloat(product.denomAmount || "0");
+  const faceValue =
+    getResolvedProductPrice(product) ??
+    convertDenomAmountToNumber(product.denomAmount);
   const supplierPrice = product.supplierOffers?.[0]?.supplierPrice
     ? parseFloat(product.supplierOffers[0].supplierPrice)
     : faceValue;
@@ -72,7 +78,9 @@ export function CheckoutModal({
   // markupPercent can be either decimal (0.10) or percentage (10)
   // If it's less than 1, treat as decimal; otherwise divide by 100
   const actualMarkup = markupPercent < 1 ? markupPercent : markupPercent / 100;
-  const baseSellingPrice = supplierPrice + supplierPrice * actualMarkup;
+  const baseSellingPrice = product.resolvedPrice
+    ? faceValue
+    : supplierPrice + supplierPrice * actualMarkup;
 
   // Check for active offer discount
   // If product.discountedPrice is provided and less than base price, use it
