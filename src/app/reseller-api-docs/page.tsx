@@ -20,7 +20,7 @@ export default function ResellerApiDocsPage() {
   };
 
   const codeSnippets = {
-    curl: `curl -X POST https://api.amsy.ng/api/v1/reseller/api/purchases \\
+    curl: `curl -X POST https://api.amsydatasub.com/api/v1/reseller/api/purchases \\
   -H "Content-Type: application/json" \\
   -H "X-API-KEY: res_live_xxxxxxxxxxxxxxxx" \\
   -H "X-Idempotency-Key: tx_req_1234567890" \\
@@ -33,7 +33,7 @@ export default function ResellerApiDocsPage() {
 
 const purchaseData = async () => {
   const response = await axios.post(
-    'https://api.amsy.ng/api/v1/reseller/api/purchases',
+    'https://api.amsydatasub.com/api/v1/reseller/api/purchases',
     {
       product_code: 'MTN_5GB_SME_SHARE',
       phone_number: '08012345678',
@@ -52,7 +52,7 @@ const purchaseData = async () => {
     python: `import requests
 import time
 
-url = "https://api.amsy.ng/api/v1/reseller/api/purchases"
+url = "https://api.amsydatasub.com/api/v1/reseller/api/purchases"
 headers = {
     "Content-Type": "application/json",
     "X-API-KEY": "res_live_xxxxxxxxxxxxxxxx",
@@ -71,7 +71,7 @@ print(response.json())`,
 $curl = curl_init();
 
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api.amsy.ng/api/v1/reseller/api/purchases",
+  CURLOPT_URL => "https://api.amsydatasub.com/api/v1/reseller/api/purchases",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_POSTFIELDS => json_encode([
