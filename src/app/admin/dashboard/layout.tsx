@@ -18,17 +18,20 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import {
+  AlertTriangleIcon,
   BarChart3Icon,
   BellIcon,
   BriefcaseIcon,
   CreditCardIcon,
   FileTextIcon,
   FingerprintIcon,
+  FolderTreeIcon,
   GiftIcon,
   HandCoinsIcon,
   HomeIcon,
   LandmarkIcon,
   LogOutIcon,
+  MegaphoneIcon,
   PackageIcon,
   PercentIcon,
   RadioIcon,
@@ -53,6 +56,21 @@ const navItems = [
     title: "Analytics",
     href: "/admin/dashboard/analytics",
     icon: BarChart3Icon,
+  },
+  {
+    title: "Supplier Errors",
+    href: "/admin/dashboard/supplier-errors",
+    icon: AlertTriangleIcon,
+  },
+  {
+    title: "Announcements",
+    href: "/admin/dashboard/announcements",
+    icon: MegaphoneIcon,
+  },
+  {
+    title: "Categories",
+    href: "/admin/dashboard/categories",
+    icon: FolderTreeIcon,
   },
   {
     title: "Audit Log",
@@ -159,11 +177,6 @@ const navItems = [
     href: "/admin/dashboard/roles",
     icon: ShieldIcon,
   },
-  // {
-  //   title: "Settings",
-  //   href: "/admin/dashboard/settings",
-  //   icon: SettingsIcon,
-  // },
 ];
 
 export default function AdminDashboardLayout({
@@ -240,7 +253,3 @@ export default function AdminDashboardLayout({
     </SidebarProvider>
   );
 }
-
-
-
-
