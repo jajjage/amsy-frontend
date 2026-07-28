@@ -8,6 +8,11 @@ const servicesLinks = [
   { href: "/dstv-gotv", label: "DStv/GOtv" },
 ];
 
+const developerLinks = [
+  { href: "/reseller-products", label: "Reseller Catalog" },
+  { href: "/reseller-api-docs", label: "Reseller API Docs" },
+];
+
 const companyLinks = [
   { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact Support" },
@@ -50,7 +55,7 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="mb-4 font-semibold">Services</h4>
+            <h4 className="mb-4 font-semibold text-foreground">Services</h4>
             <ul className="space-y-2">
               {servicesLinks.map((link) => (
                 <li key={link.label}>
@@ -65,7 +70,22 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="mb-4 font-semibold">Company</h4>
+            <h4 className="mb-4 font-semibold text-foreground">Developers</h4>
+            <ul className="space-y-2">
+              {developerLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="hover:text-foreground text-sm transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-4 font-semibold text-foreground">Company</h4>
             <ul className="space-y-2">
               {companyLinks.map((link) => (
                 <li key={link.label}>
