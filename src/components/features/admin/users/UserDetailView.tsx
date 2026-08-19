@@ -1,3 +1,4 @@
+import { ResetPasswordModal } from "./ResetPasswordModal";
 "use client";
 
 import {
@@ -266,6 +267,8 @@ export function UserDetailView({ userId }: UserDetailViewProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Reset Password Modal */}
+            <ResetPasswordModal userId={userId} userName={user?.fullName} userEmail={user?.email} />
             <div className="bg-muted rounded-lg p-4 text-center">
               <p className="text-muted-foreground text-sm">Current Balance</p>
               <p className="text-3xl font-bold">
