@@ -1,6 +1,6 @@
-import { ResetPasswordModal } from "./ResetPasswordModal";
 "use client";
 
+import { ResetPasswordModal } from "./ResetPasswordModal";
 import {
   AlertDialog,
   AlertDialogAction,
