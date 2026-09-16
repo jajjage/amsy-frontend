@@ -5,6 +5,7 @@ import {
   GraduationCap,
   LayoutGrid,
   Phone,
+  Smile,
   Tv,
   Wifi,
   Zap,
@@ -14,6 +15,7 @@ import Link from "next/link";
 const actions = [
   { label: "Data", icon: Wifi, href: "/dashboard/data" },
   { label: "Airtime", icon: Phone, href: "/dashboard/airtime" },
+  { label: "Smile", icon: Smile, href: "/dashboard/smile" },
   { label: "Call Sub", icon: BadgeCheck, href: "/dashboard/subscription" },
   { label: "Electricity", icon: Zap, href: "/dashboard/electricity" },
   { label: "Cable TV", icon: Tv, href: "/dashboard/cable" },
