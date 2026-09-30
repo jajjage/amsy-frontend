@@ -1,4 +1,6 @@
 import { SupplierListTable } from "@/components/features/admin/suppliers/SupplierListTable";
+import { SupplierBalances } from "@/components/features/admin/suppliers/SupplierBalances";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 /**
  * Admin Suppliers List Page
@@ -15,7 +17,14 @@ export default function AdminSuppliersPage() {
           Manage data suppliers and their configurations.
         </p>
       </div>
-      <SupplierListTable />
+      <Tabs defaultValue="suppliers">
+        <TabsList>
+          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+          <TabsTrigger value="balances">Supplier Balance</TabsTrigger>
+        </TabsList>
+        <TabsContent value="suppliers"><SupplierListTable /></TabsContent>
+        <TabsContent value="balances"><SupplierBalances /></TabsContent>
+      </Tabs>
     </div>
   );
 }

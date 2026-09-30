@@ -9,6 +9,7 @@ import {
   Supplier,
   SupplierListResponse,
   UpdateSupplierRequest,
+  SupplierBalancesResponse,
 } from "@/types/admin/supplier.types";
 import { ApiResponse } from "@/types/api.types";
 
@@ -60,6 +61,16 @@ export const adminSupplierService = {
       `${BASE_PATH}/${supplierId}`,
       data
     );
+    return response.data;
+  },
+
+  getSupplierBalances: async (): Promise<ApiResponse<SupplierBalancesResponse>> => {
+    const response = await apiClient.get<ApiResponse<SupplierBalancesResponse>>(`${BASE_PATH}/balances`);
+    return response.data;
+  },
+
+  refreshSupplierBalance: async (supplier: string) => {
+    const response = await apiClient.post<ApiResponse<{ balance: import("@/types/admin/supplier.types").SupplierBalance }>>(`${BASE_PATH}/balances/${supplier}/refresh`);
     return response.data;
   },
 };

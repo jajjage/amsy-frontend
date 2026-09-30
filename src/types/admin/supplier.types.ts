@@ -23,6 +23,20 @@ export interface SupplierListResponse {
   suppliers: Supplier[];
 }
 
+export interface SupplierBalance {
+  supplier: "nexus" | "quicklysim" | "maskawa" | "smeplug";
+  balance: number | null;
+  currency: string;
+  lastUpdated: string | null;
+  attemptedAt: string | null;
+  error: string | null;
+  isStale: boolean;
+}
+
+export interface SupplierBalancesResponse {
+  balances: SupplierBalance[];
+}
+
 // ============= Request Types =============
 
 export interface CreateSupplierRequest {

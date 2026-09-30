@@ -19,6 +19,7 @@ export const supplierKeys = {
   all: ["admin", "suppliers"] as const,
   list: () => [...supplierKeys.all, "list"] as const,
   detail: (id: string) => [...supplierKeys.all, "detail", id] as const,
+  balances: () => [...supplierKeys.all, "balances"] as const,
 };
 
 /**
@@ -29,6 +30,23 @@ export function useAdminSuppliers() {
     queryKey: supplierKeys.list(),
     queryFn: () => adminSupplierService.getSuppliers(),
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useAdminSupplierBalances() {
+  return useQuery({
+    queryKey: supplierKeys.balances(),
+    queryFn: () => adminSupplierService.getSupplierBalances(),
+    staleTime: 0,
+  });
+}
+
+export function useRefreshAdminSupplierBalance() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (supplier: string) => adminSupplierService.refreshSupplierBalance(supplier),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: supplierKeys.balances() }),
+    onError: () => toast.error("Failed to refresh supplier balance"),
   });
 }
 
