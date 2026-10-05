@@ -1,6 +1,7 @@
 "use client";
 
 import { ResetPasswordModal } from "./ResetPasswordModal";
+import { ResetSecurityCodes } from "./ResetSecurityCodes";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -269,6 +270,7 @@ export function UserDetailView({ userId }: UserDetailViewProps) {
           <CardContent className="space-y-4">
             {/* Reset Password Modal */}
             <ResetPasswordModal userId={userId} userName={user?.fullName} userEmail={user?.email} />
+            <ResetSecurityCodes userId={userId} />
             <div className="bg-muted rounded-lg p-4 text-center">
               <p className="text-muted-foreground text-sm">Current Balance</p>
               <p className="text-3xl font-bold">
