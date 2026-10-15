@@ -22,7 +22,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authService } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,13 @@ export default function AnalyticsPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [configLoading, setConfigLoading] = useState(true);
+  useEffect(() => {
+    authService.getSensitiveAnalyticsConfig()
+      .then((response) => setUnlocked(response.data?.enabled !== true))
+      .catch(() => setUnlocked(false))
+      .finally(() => setConfigLoading(false));
+  }, []);
   const unlock = async () => {
     setLoading(true); setError("");
     try { await authService.unlockSensitiveAnalytics(password); setUnlocked(true); setPassword(""); }
@@ -86,7 +93,7 @@ export default function AnalyticsPage() {
           <KeyMetricsCards />
 
           {/* Transaction Overview & Operator Performance */}
-          {!unlocked ? (
+          {configLoading ? <Card><CardContent className="py-10 text-center text-muted-foreground">Loading analytics security settings…</CardContent></Card> : !unlocked ? (
             <Card><CardContent className="flex flex-col items-center gap-4 py-10 text-center">
               <h2 className="text-xl font-semibold">Sensitive analytics locked</h2>
               <p className="max-w-md text-sm text-muted-foreground">Re-enter your admin password to view transaction overview and the analytics below it. This unlock lasts 15 minutes.</p>

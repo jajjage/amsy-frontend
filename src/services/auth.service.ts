@@ -9,6 +9,10 @@ import {
 } from "@/types/auth.types";
 
 export const authService = {
+  getSensitiveAnalyticsConfig: async (): Promise<ApiResponse<{ enabled: boolean }>> => {
+    const response = await apiClient.get<ApiResponse<{ enabled: boolean }>>('/auth/analytics/config');
+    return response.data;
+  },
   unlockSensitiveAnalytics: async (password: string): Promise<ApiResponse> => {
     const response = await apiClient.post<ApiResponse>('/auth/analytics/unlock', { password });
     return response.data;
