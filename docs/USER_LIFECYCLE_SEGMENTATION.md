@@ -8,6 +8,8 @@ Lifecycle segment tabs and row badges are now implemented in the AMSY admin user
 
 The existing admin users list now has selectable tabs for All Customers, Never Activated, Active, At Risk, Churned, and Dormant, with server-provided counts. Each customer row shows a segment badge, last activity, and inactive duration. Never-activated users show an explicit no-qualifying-activity explanation rather than a blank date.
 
+The users list requests 25 users per page by default, with the existing previous/next pagination. Lifecycle counts describe the full tenant-scoped segment, not just the current page.
+
 Expose lifecycle transition history with access to all transitions returned within the backend's 24-month retention window. Do not silently truncate history to a small fixed number of entries. Ensure row density remains usable on narrow viewports and that missing optional dates/history render safely.
 
 CSV export should preserve the current lifecycle filter and use the backend export contract; do not reconstruct or recalculate lifecycle state in the browser. Keep URL/query state consistent with the existing user filters so links and pagination preserve the selected segment.
