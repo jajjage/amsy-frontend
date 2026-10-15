@@ -22,8 +22,23 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { useState } from "react";
+import { authService } from "@/services/auth.service";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function AnalyticsPage() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const unlock = async () => {
+    setLoading(true); setError("");
+    try { await authService.unlockSensitiveAnalytics(password); setUnlocked(true); setPassword(""); }
+    catch { setError("Incorrect password or insufficient permission."); }
+    finally { setLoading(false); }
+  };
   return (
     <div className="flex flex-col gap-4 p-2 md:gap-6 md:p-6">
       {/* Page Header */}
@@ -71,16 +86,22 @@ export default function AnalyticsPage() {
           <KeyMetricsCards />
 
           {/* Transaction Overview & Operator Performance */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <TransactionOverviewCard />
-            <OperatorPerformanceCard />
-          </div>
+          {!unlocked ? (
+            <Card><CardContent className="flex flex-col items-center gap-4 py-10 text-center">
+              <h2 className="text-xl font-semibold">Sensitive analytics locked</h2>
+              <p className="max-w-md text-sm text-muted-foreground">Re-enter your admin password to view transaction overview and the analytics below it. This unlock lasts 15 minutes.</p>
+              <div className="flex w-full max-w-sm gap-2"><Input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && unlock()} placeholder="Admin password" /><Button onClick={unlock} disabled={!password || loading}>{loading ? "Unlocking…" : "Unlock"}</Button></div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+            </CardContent></Card>
+          ) : <>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2"><TransactionOverviewCard /><OperatorPerformanceCard /></div>
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <TopupPerformanceChart />
             <TransactionTypeChart />
           </div>
+          </>}
         </TabsContent>
 
         {/* Revenue Tab */}

@@ -9,6 +9,10 @@ import {
 } from "@/types/auth.types";
 
 export const authService = {
+  unlockSensitiveAnalytics: async (password: string): Promise<ApiResponse> => {
+    const response = await apiClient.post<ApiResponse>('/auth/analytics/unlock', { password });
+    return response.data;
+  },
   // Register new user
   register: async (
     data: RegisterRequest
