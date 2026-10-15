@@ -17,7 +17,7 @@ export default function WebhookConfigPage() {
   const { user, isLoading } = useAuth();
   const { canAccessApi, shouldShowProvisionWarning } = useResellerApiAccess();
 
-  if (!isLoading && user?.role !== "reseller") {
+  if (!isLoading && user?.role !== "api_user") {
     redirect("/dashboard");
   }
 

@@ -71,6 +71,7 @@ describe("UserListTable", () => {
               userId: "user-1",
               fullName: "John Doe",
               email: "john@example.com",
+              phoneNumber: "08012345678",
               role: "user",
               isSuspended: false,
               balance: "100",
@@ -94,6 +95,10 @@ describe("UserListTable", () => {
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("john@example.com")).toBeInTheDocument();
+    expect(screen.getByTitle("Message 08012345678 on WhatsApp")).toHaveAttribute(
+      "href",
+      "https://wa.me/2348012345678?text=Hello%20John%20Doe%2C%20this%20is%20AMSY%20Data%20Sub%20admin.%20"
+    );
     expect(
       screen.getByText("Active", { selector: '[data-slot="badge"]' })
     ).toBeInTheDocument();

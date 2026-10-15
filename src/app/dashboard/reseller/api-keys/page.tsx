@@ -22,7 +22,7 @@ export default function ApiKeysPage() {
   const { canAccessApi, shouldShowProvisionWarning } = useResellerApiAccess();
 
   // Check if user is a reseller
-  if (!isLoading && user?.role !== "reseller") {
+  if (!isLoading && user?.role !== "api_user") {
     redirect("/dashboard");
   }
 

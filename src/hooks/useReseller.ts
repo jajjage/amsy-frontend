@@ -141,12 +141,14 @@ export function useResellerApiAccess() {
   const { user } = useAuth();
 
   const isReseller = user?.role === "reseller";
+  const isApiUser = user?.role === "api_user";
   const hasApiPermission = Boolean(
     user?.permissions?.includes("reseller.api_access")
   );
 
   return {
-    canAccessApi: isReseller,
+    canAccessApi: isApiUser,
+    isApiUser,
     isReseller,
     hasApiPermission,
     isPermissionFallback: false,

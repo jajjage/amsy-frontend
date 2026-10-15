@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useResellerApiAccess } from "@/hooks/useReseller";
 import {
   BarChart3,
+  BadgeCheck,
   FileUp,
   Key,
   Link2,
@@ -32,7 +33,7 @@ export default function ResellerHubPage() {
   const { canAccessApi } = useResellerApiAccess();
 
   // Check if user is a reseller
-  if (!isLoading && user?.role !== "reseller") {
+  if (!isLoading && user?.role !== "reseller" && user?.role !== "api_user") {
     redirect("/dashboard");
   }
 
@@ -62,6 +63,13 @@ export default function ResellerHubPage() {
       color: "text-amber-500",
     },
     {
+      title: "ADEX Credentials",
+      description: "Create the username and password ADEX clients expect",
+      icon: BadgeCheck,
+      href: "/dashboard/reseller/adex-credentials",
+      color: "text-cyan-600",
+    },
+    {
       title: "Webhook Config",
       description: "Set callback URL and rotate callback secret",
       icon: Link2,
@@ -69,11 +77,18 @@ export default function ResellerHubPage() {
       color: "text-indigo-500",
     },
     {
-      title: "API Console",
-      description: "Test purchases and monitor request status",
+      title: "V1 API Console",
+      description: "Run synchronous data and airtime requests",
+      icon: TerminalSquare,
+      href: "/dashboard/reseller/api-v1",
+      color: "text-emerald-500",
+    },
+    {
+      title: "Legacy Purchase Console",
+      description: "Use the existing reseller purchases API format",
       icon: TerminalSquare,
       href: "/dashboard/reseller/purchase-console",
-      color: "text-emerald-500",
+      color: "text-slate-500",
     },
     {
       title: "API Analytics",
@@ -88,9 +103,9 @@ export default function ResellerHubPage() {
     <>
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Reseller Hub</h1>
+          <h1 className="text-3xl font-bold">{user?.role === "api_user" ? "Developer Console" : "Reseller Hub"}</h1>
           <p className="text-muted-foreground mt-2">
-            Tools to help you run your reseller business
+            {user?.role === "api_user" ? "Manage your API access, credentials, and purchases." : "Tools to help you run your reseller business"}
           </p>
         </div>
 
@@ -102,7 +117,7 @@ export default function ResellerHubPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[
-            ...alwaysAvailableFeatures,
+          ...(user?.role === "reseller" ? alwaysAvailableFeatures : []),
             ...(!isLoading && canAccessApi ? apiFeatures : []),
           ].map((feature) => (
             <Card

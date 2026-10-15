@@ -29,7 +29,7 @@ export default function ResellerAnalyticsPage() {
   const [queryParams, setQueryParams] =
     useState<ResellerPurchaseAnalyticsQueryParams>({});
 
-  if (!isLoading && user?.role !== "reseller") {
+  if (!isLoading && user?.role !== "api_user") {
     redirect("/dashboard");
   }
 

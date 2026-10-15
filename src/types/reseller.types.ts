@@ -47,6 +47,22 @@ export interface BulkTopupResponseData {
 
 // ============= API Key Types =============
 
+export interface AdexCredential {
+  id: string;
+  name: string;
+  username: string;
+  profile: string;
+  scopes: string[];
+  is_active: boolean;
+  last_used_at: string | null;
+  last_reset_at: string | null;
+  created_at: string;
+}
+
+export interface AdexCredentialSecret extends Omit<AdexCredential, "last_used_at" | "last_reset_at"> {
+  password: string;
+}
+
 /**
  * API Key as returned from the server (prefix only, not full key)
  */

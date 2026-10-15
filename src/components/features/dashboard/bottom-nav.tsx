@@ -40,9 +40,11 @@ export function BottomNav() {
   // Show "Become a Reseller" only for regular users
   const showBecomeReseller = user?.role === "user";
   const isReseller = user?.role === "reseller";
+  const isApiUser = user?.role === "api_user";
 
   // Build nav items based on user role
-  const navItems = isReseller
+  const hasBusinessTools = isReseller || isApiUser;
+  const navItems = hasBusinessTools
     ? [...baseNavItems.slice(0, 2), resellerNavItem, ...baseNavItems.slice(2)]
     : baseNavItems;
 
@@ -90,7 +92,7 @@ export function BottomNav() {
         <div
           className={cn(
             "grid h-16 items-center",
-            isReseller ? "grid-cols-5" : "grid-cols-4"
+            hasBusinessTools ? "grid-cols-5" : "grid-cols-4"
           )}
         >
           {navItems.map((item) => {

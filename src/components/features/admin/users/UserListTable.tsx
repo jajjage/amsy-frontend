@@ -16,7 +16,13 @@ import {
 import { useAdminUsers } from "@/hooks/admin/useAdminUsers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { AdminUser, UserLifecycleSegment } from "@/types/admin/user.types";
-import { ChevronLeft, ChevronRight, Search, UserPlus } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle,
+  Search,
+  UserPlus,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -50,6 +56,13 @@ function formatActivityDate(
     timeZone,
   }).format(date);
 }
+
+const formatForWhatsApp = (phone: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  return cleanPhone.startsWith("0")
+    ? `234${cleanPhone.substring(1)}`
+    : cleanPhone;
+};
 
 export function UserListTable() {
   const [page, setPage] = useState(1);
@@ -230,7 +243,20 @@ export function UserListTable() {
                 users.map((user: AdminUser) => (
                   <TableRow key={user.id || user.userId}>
                     <TableCell className="font-medium">
-                      {user.fullName}
+                      <div className="flex items-center gap-2">
+                        {user.fullName}
+                        {user.phoneNumber && (
+                          <a
+                            href={`https://wa.me/${formatForWhatsApp(user.phoneNumber)}?text=${encodeURIComponent(`Hello ${user.fullName}, this is AMSY Data Sub admin. `)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-full p-1 text-green-600 transition-colors hover:bg-green-50 hover:text-green-700"
+                            title={`Message ${user.phoneNumber} on WhatsApp`}
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>

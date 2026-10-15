@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
         source: "/api/v1/:path*",
         destination: `${backendUrl}/api/v1/:path*`,
       },
+      // Public V1 is mounted at /api/{user,data,topup}, outside /api/v1.
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
+      },
     ];
   },
 

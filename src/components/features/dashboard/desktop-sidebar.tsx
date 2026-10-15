@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
+  BadgeCheck,
   Clock,
   FileUp,
   HandCoins,
@@ -42,6 +43,7 @@ const resellerItems = [
 
 const resellerApiItems = [
   { label: "API Keys", icon: Key, href: "/dashboard/reseller/api-keys" },
+  { label: "ADEX Credentials", icon: BadgeCheck, href: "/dashboard/reseller/adex-credentials" },
   {
     label: "Webhook Config",
     icon: Link2,
@@ -50,7 +52,7 @@ const resellerApiItems = [
   {
     label: "API Console",
     icon: TerminalSquare,
-    href: "/dashboard/reseller/purchase-console",
+      href: "/dashboard/reseller/api-v1",
   },
   {
     label: "API Analytics",
@@ -115,14 +117,14 @@ export function DesktopSidebar({ className }: { className?: string }) {
             </Link>
           ))}
 
-          {/* Reseller Section - Only visible to resellers */}
-          {isReseller && (
+          {/* Bulk tools stay reseller-only; developer/API tools are api_user-only. */}
+          {(isReseller || user?.role === "api_user") && (
             <>
               <Separator className="my-2" />
               <span className="text-muted-foreground px-3 text-xs font-medium tracking-wider uppercase">
-                Reseller Tools
+                {user?.role === "api_user" ? "Developer Tools" : "Reseller Tools"}
               </span>
-              {resellerItems.map((item) => (
+              {isReseller ? resellerItems.map((item) => (
                 <Link
                   href={item.href}
                   key={item.label}
@@ -137,7 +139,7 @@ export function DesktopSidebar({ className }: { className?: string }) {
                   <item.icon className="size-5" />
                   <span>{item.label}</span>
                 </Link>
-              ))}
+              )) : null}
               {canAccessApi ? (
                 resellerApiItems.map((item) => (
                   <Link
