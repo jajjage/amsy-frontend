@@ -43,7 +43,11 @@ const resellerItems = [
 
 const resellerApiItems = [
   { label: "API Keys", icon: Key, href: "/dashboard/reseller/api-keys" },
-  { label: "ADEX Credentials", icon: BadgeCheck, href: "/dashboard/reseller/adex-credentials" },
+  {
+    label: "ADEX Credentials",
+    icon: BadgeCheck,
+    href: "/dashboard/reseller/adex-credentials",
+  },
   {
     label: "Webhook Config",
     icon: Link2,
@@ -52,7 +56,7 @@ const resellerApiItems = [
   {
     label: "API Console",
     icon: TerminalSquare,
-      href: "/dashboard/reseller/api-v1",
+    href: "/dashboard/reseller/api-v1",
   },
   {
     label: "API Analytics",
@@ -122,24 +126,28 @@ export function DesktopSidebar({ className }: { className?: string }) {
             <>
               <Separator className="my-2" />
               <span className="text-muted-foreground px-3 text-xs font-medium tracking-wider uppercase">
-                {user?.role === "api_user" ? "Developer Tools" : "Reseller Tools"}
+                {user?.role === "api_user"
+                  ? "Developer Tools"
+                  : "Reseller Tools"}
               </span>
-              {isReseller ? resellerItems.map((item) => (
-                <Link
-                  href={item.href}
-                  key={item.label}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors",
-                    pathname === item.href ||
-                      pathname.startsWith(item.href + "/")
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="size-5" />
-                  <span>{item.label}</span>
-                </Link>
-              )) : null}
+              {isReseller
+                ? resellerItems.map((item) => (
+                    <Link
+                      href={item.href}
+                      key={item.label}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors",
+                        pathname === item.href ||
+                          pathname.startsWith(item.href + "/")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <item.icon className="size-5" />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))
+                : null}
               {canAccessApi ? (
                 resellerApiItems.map((item) => (
                   <Link

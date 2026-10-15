@@ -7,6 +7,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { resellerService } from "@/services/reseller.service";
+import { canAccessDeveloperTools } from "@/lib/api-access";
 import type {
   CreateApiPurchaseHeaders,
   CreateApiPurchaseQueryParams,
@@ -147,7 +148,7 @@ export function useResellerApiAccess() {
   );
 
   return {
-    canAccessApi: isApiUser,
+    canAccessApi: canAccessDeveloperTools(user?.role, user?.permissions),
     isApiUser,
     isReseller,
     hasApiPermission,

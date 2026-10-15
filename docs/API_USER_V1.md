@@ -39,3 +39,7 @@ Airtime request:
 Requests use `Authorization: Token <Nexus API key>` and JSON content type. The network IDs and data plan numbers belong to the tenant's configuration; do not assume another tenant uses the same values. A response with HTTP 202 is still processing. Otherwise inspect the response body's `status` as well as the HTTP status.
 
 The old reseller purchase console remains available to API users as **Legacy Purchase Console**. It continues to use `/api/v1/reseller/api/purchases`; the new V1 routes do not replace or alter it.
+
+## Admin features not included in this first AMSY pass
+
+The shared backend branch currently has the private-price model and purchase-time price resolution, but no admin HTTP routes for listing, creating, editing, or removing a user's private prices. The supplier parent/protocol model and adapters likewise have no admin management routes exposed to this frontend. Those screens should be added after the backend publishes tenant-scoped admin contracts; this frontend does not fake persistence or send requests to guessed URLs.

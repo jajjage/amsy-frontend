@@ -30,9 +30,14 @@ const nextConfig: NextConfig = {
         destination: `${backendUrl}/api/v1/:path*`,
       },
       // Public V1 is mounted at /api/{user,data,topup}, outside /api/v1.
+      // Keep these specific so local Next handlers such as /api/og remain local.
+      ...["user", "data", "topup"].map((path) => ({
+        source: `/api/${path}`,
+        destination: `${backendUrl}/api/${path}`,
+      })),
       {
-        source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
+        source: "/api/transactions/:requestId",
+        destination: `${backendUrl}/api/transactions/:requestId`,
       },
     ];
   },

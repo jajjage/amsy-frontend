@@ -59,7 +59,8 @@ export interface AdexCredential {
   created_at: string;
 }
 
-export interface AdexCredentialSecret extends Omit<AdexCredential, "last_used_at" | "last_reset_at"> {
+export interface AdexCredentialSecret
+  extends Omit<AdexCredential, "last_used_at" | "last_reset_at"> {
   password: string;
 }
 

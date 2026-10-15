@@ -98,9 +98,9 @@ export const resellerService = {
   // ============= ADEX Client Credentials =============
 
   getAdexCredentials: async () => {
-    const response = await apiClient.get<ApiResponse<{ credentials: AdexCredential[] }>>(
-      "/reseller/credentials/adex"
-    );
+    const response = await apiClient.get<
+      ApiResponse<{ credentials: AdexCredential[] }>
+    >("/reseller/credentials/adex");
     return response.data;
   },
 

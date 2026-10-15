@@ -103,9 +103,13 @@ export default function ResellerHubPage() {
     <>
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">{user?.role === "api_user" ? "Developer Console" : "Reseller Hub"}</h1>
+          <h1 className="text-3xl font-bold">
+            {user?.role === "api_user" ? "Developer Console" : "Reseller Hub"}
+          </h1>
           <p className="text-muted-foreground mt-2">
-            {user?.role === "api_user" ? "Manage your API access, credentials, and purchases." : "Tools to help you run your reseller business"}
+            {user?.role === "api_user"
+              ? "Manage your API access, credentials, and purchases."
+              : "Tools to help you run your reseller business"}
           </p>
         </div>
 
@@ -117,7 +121,7 @@ export default function ResellerHubPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[
-          ...(user?.role === "reseller" ? alwaysAvailableFeatures : []),
+            ...(user?.role === "reseller" ? alwaysAvailableFeatures : []),
             ...(!isLoading && canAccessApi ? apiFeatures : []),
           ].map((feature) => (
             <Card

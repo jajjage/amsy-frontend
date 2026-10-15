@@ -35,29 +35,31 @@ export function BottomNav() {
   const { user } = useAuth();
   const [showResellerModal, setShowResellerModal] = useState(false);
   const { getStatus, clearPending } = useResellerUpgradeStatus();
-  const [hasPendingUpgrade, setHasPendingUpgrade] = useState(false);
+  const isReseller = user?.role === "reseller";
+  const isApiUser = user?.role === "api_user";
+  const [hasPendingUpgrade, setHasPendingUpgrade] = useState(
+    () => !isReseller && getStatus().pending
+  );
 
   // Show "Become a Reseller" only for regular users
   const showBecomeReseller = user?.role === "user";
-  const isReseller = user?.role === "reseller";
-  const isApiUser = user?.role === "api_user";
 
   // Build nav items based on user role
   const hasBusinessTools = isReseller || isApiUser;
   const navItems = hasBusinessTools
-    ? [...baseNavItems.slice(0, 2), resellerNavItem, ...baseNavItems.slice(2)]
+    ? [
+        ...baseNavItems.slice(0, 2),
+        { ...resellerNavItem, label: isApiUser ? "API" : "Reseller" },
+        ...baseNavItems.slice(2),
+      ]
     : baseNavItems;
 
-  // Check pending status on mount and clear if user is now reseller
+  // Clear stale request state once the account has been upgraded.
   useEffect(() => {
     if (isReseller) {
       clearPending();
-      setHasPendingUpgrade(false);
-    } else {
-      const status = getStatus();
-      setHasPendingUpgrade(status.pending);
     }
-  }, [isReseller, getStatus, clearPending]);
+  }, [isReseller, clearPending]);
 
   // Check if current path is a reseller-related page
   const isResellerPath = pathname.startsWith("/dashboard/reseller");
@@ -109,7 +111,7 @@ export function BottomNav() {
                 className={cn(
                   "flex flex-col items-center gap-1 text-xs font-medium",
                   isActive ? "text-primary" : "text-muted-foreground",
-                  item.label === "Reseller" &&
+                  (item.label === "Reseller" || item.label === "API") &&
                     "relative after:absolute after:-top-1 after:right-1/4 after:size-1.5 after:rounded-full after:bg-amber-500"
                 )}
               >
@@ -126,11 +128,7 @@ export function BottomNav() {
         open={showResellerModal}
         onOpenChange={(open) => {
           setShowResellerModal(open);
-          // Refresh pending status when modal closes
-          if (!open) {
-            const status = getStatus();
-            setHasPendingUpgrade(status.pending);
-          }
+          if (!open) setHasPendingUpgrade(getStatus().pending);
         }}
       />
     </>
