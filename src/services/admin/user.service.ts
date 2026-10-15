@@ -34,6 +34,17 @@ const mapFromApiUser = (apiUser: any): AdminUser => {
     balance: apiUser.balance ?? "0",
     createdAt: apiUser.created_at || apiUser.createdAt,
     updatedAt: apiUser.updated_at || apiUser.updatedAt,
+    lifecycleSegment:
+      apiUser.lifecycle_segment ?? apiUser.lifecycleSegment ?? null,
+    firstMeaningfulActivityAt:
+      apiUser.first_meaningful_activity_at ??
+      apiUser.firstMeaningfulActivityAt ??
+      null,
+    lastMeaningfulActivityAt:
+      apiUser.last_meaningful_activity_at ??
+      apiUser.lastMeaningfulActivityAt ??
+      null,
+    daysInactive: apiUser.days_inactive ?? apiUser.daysInactive ?? null,
   };
 };
 
