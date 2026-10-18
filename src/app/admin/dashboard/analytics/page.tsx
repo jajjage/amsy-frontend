@@ -41,7 +41,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     authService.getSensitiveAnalyticsConfig()
       .then((response) => {
-        const enabled = response.data?.enabled === true;
+        const enabled = response.data?.enabled !== false;
         setLockEnabled(enabled);
         setUnlocked(!enabled);
       })
@@ -123,9 +123,10 @@ export default function AnalyticsPage() {
         loading={configLoading}
         locked={lockEnabled && !unlocked}
       >
-        <TodaySnapshotCard />
         <ProductAnalyticsSection />
       </SensitiveAnalyticsGate>
+      {/* Today's operational snapshot is intentionally available without re-authentication. */}
+      <TodaySnapshotCard />
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
