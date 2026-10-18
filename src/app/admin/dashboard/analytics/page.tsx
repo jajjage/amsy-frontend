@@ -6,6 +6,7 @@ import {
   KeyMetricsCards,
   OperatorPerformanceCard,
   RevenueCard,
+  SensitiveAnalyticsGate,
   TodaySnapshotCard,
   TopupPerformanceChart,
   TransactionOverviewCard,
@@ -23,27 +24,49 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { authService } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function AnalyticsPage() {
+  const [lockEnabled, setLockEnabled] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [configLoading, setConfigLoading] = useState(true);
+  const unlockTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     authService.getSensitiveAnalyticsConfig()
-      .then((response) => setUnlocked(response.data?.enabled !== true))
-      .catch(() => setUnlocked(false))
+      .then((response) => {
+        const enabled = response.data?.enabled !== false;
+        setLockEnabled(enabled);
+        setUnlocked(!enabled);
+      })
+      .catch(() => {
+        // Fail closed if the tenant's lock configuration cannot be confirmed.
+        setLockEnabled(true);
+        setUnlocked(false);
+      })
       .finally(() => setConfigLoading(false));
   }, []);
+  useEffect(
+    () => () => {
+      if (unlockTimeout.current) clearTimeout(unlockTimeout.current);
+    },
+    []
+  );
   const unlock = async () => {
     setLoading(true); setError("");
-    try { await authService.unlockSensitiveAnalytics(password); setUnlocked(true); setPassword(""); }
+    try {
+      await authService.unlockSensitiveAnalytics(password);
+      setUnlocked(true);
+      setPassword("");
+      if (unlockTimeout.current) clearTimeout(unlockTimeout.current);
+      unlockTimeout.current = setTimeout(() => setUnlocked(false), 15 * 60 * 1000);
+    }
     catch { setError("Incorrect password or insufficient permission."); }
     finally { setLoading(false); }
   };
@@ -59,9 +82,51 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Today's Snapshot - Hero Card */}
+      {configLoading || (lockEnabled && !unlocked) ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+            <h2 className="text-xl font-semibold">
+              {configLoading ? "Checking analytics security" : "Sensitive analytics locked"}
+            </h2>
+            {configLoading ? (
+              <p className="text-sm text-muted-foreground">
+                Loading analytics security settings…
+              </p>
+            ) : (
+              <>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  Enter your admin password to view financial, transaction,
+                  top-up, product, and bill-payment analytics. Unlock lasts 15
+                  minutes. User analytics remain available without unlocking.
+                </p>
+                <div className="flex w-full max-w-sm gap-2">
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    onKeyDown={(event) => event.key === "Enter" && unlock()}
+                    placeholder="Admin password"
+                    aria-label="Admin password for sensitive analytics"
+                  />
+                  <Button onClick={unlock} disabled={!password || loading}>
+                    {loading ? "Unlocking…" : "Unlock analytics"}
+                  </Button>
+                </div>
+                {error && <p className="text-sm text-destructive">{error}</p>}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <SensitiveAnalyticsGate
+        loading={configLoading}
+        locked={lockEnabled && !unlocked}
+      >
+        <ProductAnalyticsSection />
+      </SensitiveAnalyticsGate>
+      {/* Today's operational snapshot is intentionally available without re-authentication. */}
       <TodaySnapshotCard />
-      <ProductAnalyticsSection />
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
@@ -91,37 +156,35 @@ export default function AnalyticsPage() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="mt-6 space-y-6">
-          {/* Key Metrics Row */}
-          <KeyMetricsCards />
-
-          {/* Transaction Overview & Operator Performance */}
-          {configLoading ? <Card><CardContent className="py-10 text-center text-muted-foreground">Loading analytics security settings…</CardContent></Card> : !unlocked ? (
-            <Card><CardContent className="flex flex-col items-center gap-4 py-10 text-center">
-              <h2 className="text-xl font-semibold">Sensitive analytics locked</h2>
-              <p className="max-w-md text-sm text-muted-foreground">Re-enter your admin password to view transaction overview and the analytics below it. This unlock lasts 15 minutes.</p>
-              <div className="flex w-full max-w-sm gap-2"><Input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && unlock()} placeholder="Admin password" /><Button onClick={unlock} disabled={!password || loading}>{loading ? "Unlocking…" : "Unlock"}</Button></div>
-              {error && <p className="text-sm text-destructive">{error}</p>}
-            </CardContent></Card>
-          ) : <>
+          <SensitiveAnalyticsGate
+            loading={configLoading}
+            locked={lockEnabled && !unlocked}
+          >
+            <KeyMetricsCards />
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2"><TransactionOverviewCard /><OperatorPerformanceCard /></div>
 
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <TopupPerformanceChart />
-            <TransactionTypeChart />
-          </div>
-          </>}
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <TopupPerformanceChart />
+              <TransactionTypeChart />
+            </div>
+          </SensitiveAnalyticsGate>
         </TabsContent>
 
         {/* Revenue Tab */}
         <TabsContent value="revenue" className="mt-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <RevenueCard />
-            <GmvOverviewCard />
-          </div>
+          <SensitiveAnalyticsGate
+            loading={configLoading}
+            locked={lockEnabled && !unlocked}
+          >
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <RevenueCard />
+              <GmvOverviewCard />
+            </div>
 
-          {/* Operator Performance for revenue context */}
-          <OperatorPerformanceCard />
+            {/* Operator Performance for revenue context */}
+            <OperatorPerformanceCard />
+          </SensitiveAnalyticsGate>
         </TabsContent>
 
         {/* Users Tab */}
@@ -134,22 +197,32 @@ export default function AnalyticsPage() {
 
         {/* Wallet Tab */}
         <TabsContent value="wallet" className="mt-6 space-y-6">
-          {/* Wallet Overview - Full Width */}
-          <WalletOverviewCard />
+          <SensitiveAnalyticsGate
+            loading={configLoading}
+            locked={lockEnabled && !unlocked}
+          >
+            {/* Wallet Overview - Full Width */}
+            <WalletOverviewCard />
 
-          {/* GMV vs Transaction comparison */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <GmvOverviewCard />
-            <TransactionOverviewCard />
-          </div>
+            {/* GMV vs Transaction comparison */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <GmvOverviewCard />
+              <TransactionOverviewCard />
+            </div>
 
-          {/* Additional visualizations */}
-          <TopupPerformanceChart />
+            {/* Additional visualizations */}
+            <TopupPerformanceChart />
+          </SensitiveAnalyticsGate>
         </TabsContent>
 
 
         <TabsContent value="bills" className="mt-6 space-y-6">
-          <BillPaymentAnalyticsSection />
+          <SensitiveAnalyticsGate
+            loading={configLoading}
+            locked={lockEnabled && !unlocked}
+          >
+            <BillPaymentAnalyticsSection />
+          </SensitiveAnalyticsGate>
         </TabsContent>
       </Tabs>
     </div>
