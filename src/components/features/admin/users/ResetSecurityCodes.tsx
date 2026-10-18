@@ -1,18 +1,19 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useResetUserPasscode, useResetUserPin } from "@/hooks/admin/useAdminUsers";
-import { KeyRound, Loader2 } from "lucide-react";
+import { KeyRound, Loader2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
+function CredentialCard({ title, description, length, value, onChange, onReset, isPending, buttonLabel }: { title: string; description: string; length: number; value: string; onChange: (value: string) => void; onReset: () => void; isPending: boolean; buttonLabel: string }) {
+  const inputId = title.toLowerCase().replaceAll(" ", "-");
+  return <div className="rounded-xl border bg-card p-4 shadow-sm transition-colors hover:border-primary/40"><div className="mb-4 flex items-start gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary"><KeyRound className="h-4 w-4" /></div><div><h3 className="font-semibold">{title}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p></div></div><div className="space-y-2"><Label htmlFor={inputId}>New {title}</Label><Input id={inputId} inputMode="numeric" type="password" autoComplete="new-password" maxLength={length} placeholder={`${length} digits`} value={value} onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))} className="font-mono tracking-[0.35em]" /><p className="text-[11px] text-muted-foreground">Use exactly {length} numbers.</p></div><Button type="button" variant="outline" className="mt-4 w-full" disabled={value.length !== length || isPending} onClick={onReset}>{isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}{isPending ? "Updating…" : buttonLabel}</Button></div>;
+}
+
 export function ResetSecurityCodes({ userId }: { userId: string }) {
-  const [pin, setPin] = useState("");
-  const [passcode, setPasscode] = useState("");
-  const pinMutation = useResetUserPin();
-  const passcodeMutation = useResetUserPasscode();
-  return <div className="grid gap-3 sm:grid-cols-2">
-    <div className="space-y-2 rounded-lg border p-3"><Label>Reset transaction PIN</Label><Input inputMode="numeric" maxLength={4} placeholder="4 digits" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, ""))} /><Button className="w-full" variant="outline" disabled={pin.length !== 4 || pinMutation.isPending} onClick={() => pinMutation.mutate({ userId, newPin: pin })}>{pinMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}<KeyRound className="mr-2 h-4 w-4" />Reset PIN</Button></div>
-    <div className="space-y-2 rounded-lg border p-3"><Label>Reset app passcode</Label><Input inputMode="numeric" maxLength={6} placeholder="6 digits" value={passcode} onChange={e => setPasscode(e.target.value.replace(/\D/g, ""))} /><Button className="w-full" variant="outline" disabled={passcode.length !== 6 || passcodeMutation.isPending} onClick={() => passcodeMutation.mutate({ userId, newPasscode: passcode })}>{passcodeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}<KeyRound className="mr-2 h-4 w-4" />Reset Passcode</Button></div>
-  </div>;
+  const [pin, setPin] = useState(""); const [passcode, setPasscode] = useState("");
+  const pinMutation = useResetUserPin(); const passcodeMutation = useResetUserPasscode();
+  return <Card className="border-dashed"><CardHeader className="pb-3"><CardTitle className="flex items-center gap-2 text-base"><KeyRound className="h-4 w-4 text-primary" />Security credentials</CardTitle><p className="text-sm text-muted-foreground">Update the credentials this user uses for transactions and app access. Values are never shown after saving.</p></CardHeader><CardContent className="grid gap-4 pt-0 md:grid-cols-2"><CredentialCard title="Transaction PIN" description="Required to authorize wallet and purchase transactions." length={4} value={pin} onChange={setPin} isPending={pinMutation.isPending} onReset={() => pinMutation.mutate({ userId, newPin: pin })} buttonLabel="Update transaction PIN" /><CredentialCard title="App passcode" description="Used to unlock the user’s app after inactivity or a soft lock." length={6} value={passcode} onChange={setPasscode} isPending={passcodeMutation.isPending} onReset={() => passcodeMutation.mutate({ userId, newPasscode: passcode })} buttonLabel="Update app passcode" /></CardContent></Card>;
 }
