@@ -19,6 +19,7 @@ import { BillPaymentAnalyticsSection } from "@/components/features/admin/bills/B
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart3,
+  Boxes,
   DollarSign,
   ReceiptText,
   Users,
@@ -82,55 +83,12 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {configLoading || (lockEnabled && !unlocked) ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
-            <h2 className="text-xl font-semibold">
-              {configLoading ? "Checking analytics security" : "Sensitive analytics locked"}
-            </h2>
-            {configLoading ? (
-              <p className="text-sm text-muted-foreground">
-                Loading analytics security settings…
-              </p>
-            ) : (
-              <>
-                <p className="max-w-md text-sm text-muted-foreground">
-                  Enter your admin password to view financial, transaction,
-                  top-up, product, and bill-payment analytics. Unlock lasts 15
-                  minutes. User analytics remain available without unlocking.
-                </p>
-                <div className="flex w-full max-w-sm gap-2">
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    onKeyDown={(event) => event.key === "Enter" && unlock()}
-                    placeholder="Admin password"
-                    aria-label="Admin password for sensitive analytics"
-                  />
-                  <Button onClick={unlock} disabled={!password || loading}>
-                    {loading ? "Unlocking…" : "Unlock analytics"}
-                  </Button>
-                </div>
-                {error && <p className="text-sm text-destructive">{error}</p>}
-              </>
-            )}
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <SensitiveAnalyticsGate
-        loading={configLoading}
-        locked={lockEnabled && !unlocked}
-      >
-        <ProductAnalyticsSection />
-      </SensitiveAnalyticsGate>
       {/* Today's operational snapshot is intentionally available without re-authentication. */}
       <TodaySnapshotCard />
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full max-w-4xl grid-cols-5">
+        <TabsList className="grid w-full max-w-5xl grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Overview
@@ -147,7 +105,10 @@ export default function AnalyticsPage() {
             <Wallet className="h-4 w-4" />
             Wallet
           </TabsTrigger>
-
+          <TabsTrigger value="products" className="flex items-center gap-2">
+            <Boxes className="h-4 w-4" />
+            Products
+          </TabsTrigger>
           <TabsTrigger value="bills" className="flex items-center gap-2">
             <ReceiptText className="h-4 w-4" />
             Bills
@@ -156,6 +117,38 @@ export default function AnalyticsPage() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="mt-6 space-y-6">
+          {configLoading || (lockEnabled && !unlocked) ? (
+            <Card>
+              <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+                <h2 className="text-xl font-semibold">
+                  {configLoading ? "Checking analytics security" : "Sensitive analytics locked"}
+                </h2>
+                {configLoading ? (
+                  <p className="text-sm text-muted-foreground">Loading analytics security settings…</p>
+                ) : (
+                  <>
+                    <p className="max-w-md text-sm text-muted-foreground">
+                      Enter your admin password to view the Overview analytics. Today&apos;s Snapshot and the other analytics tabs remain available.
+                    </p>
+                    <div className="flex w-full max-w-sm gap-2">
+                      <Input
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        onKeyDown={(event) => event.key === "Enter" && unlock()}
+                        placeholder="Admin password"
+                        aria-label="Admin password for sensitive analytics"
+                      />
+                      <Button onClick={unlock} disabled={!password || loading}>
+                        {loading ? "Unlocking…" : "Unlock analytics"}
+                      </Button>
+                    </div>
+                    {error && <p className="text-sm text-destructive">{error}</p>}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          ) : null}
           <SensitiveAnalyticsGate
             loading={configLoading}
             locked={lockEnabled && !unlocked}
@@ -173,18 +166,13 @@ export default function AnalyticsPage() {
 
         {/* Revenue Tab */}
         <TabsContent value="revenue" className="mt-6 space-y-6">
-          <SensitiveAnalyticsGate
-            loading={configLoading}
-            locked={lockEnabled && !unlocked}
-          >
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <RevenueCard />
-              <GmvOverviewCard />
-            </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <RevenueCard />
+            <GmvOverviewCard />
+          </div>
 
-            {/* Operator Performance for revenue context */}
-            <OperatorPerformanceCard />
-          </SensitiveAnalyticsGate>
+          {/* Operator Performance for revenue context */}
+          <OperatorPerformanceCard />
         </TabsContent>
 
         {/* Users Tab */}
@@ -197,32 +185,27 @@ export default function AnalyticsPage() {
 
         {/* Wallet Tab */}
         <TabsContent value="wallet" className="mt-6 space-y-6">
-          <SensitiveAnalyticsGate
-            loading={configLoading}
-            locked={lockEnabled && !unlocked}
-          >
-            {/* Wallet Overview - Full Width */}
-            <WalletOverviewCard />
+          {/* Wallet Overview - Full Width */}
+          <WalletOverviewCard />
 
-            {/* GMV vs Transaction comparison */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <GmvOverviewCard />
-              <TransactionOverviewCard />
-            </div>
+          {/* GMV vs Transaction comparison */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <GmvOverviewCard />
+            <TransactionOverviewCard />
+          </div>
 
-            {/* Additional visualizations */}
-            <TopupPerformanceChart />
-          </SensitiveAnalyticsGate>
+          {/* Additional visualizations */}
+          <TopupPerformanceChart />
+        </TabsContent>
+
+        {/* Products Tab */}
+        <TabsContent value="products" className="mt-6 space-y-6">
+          <ProductAnalyticsSection />
         </TabsContent>
 
 
         <TabsContent value="bills" className="mt-6 space-y-6">
-          <SensitiveAnalyticsGate
-            loading={configLoading}
-            locked={lockEnabled && !unlocked}
-          >
-            <BillPaymentAnalyticsSection />
-          </SensitiveAnalyticsGate>
+          <BillPaymentAnalyticsSection />
         </TabsContent>
       </Tabs>
     </div>
