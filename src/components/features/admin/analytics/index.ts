@@ -6,7 +6,6 @@ export { OperatorPerformanceCard } from "./OperatorPerformanceCard";
 export { ProductAnalyticsSection } from "./ProductAnalyticsSection";
 export { RecentActivityCard } from "./RecentActivityCard";
 export { RevenueCard } from "./RevenueCard";
-export { SensitiveAnalyticsGate } from "./SensitiveAnalyticsGate";
 export { SystemHealthCard } from "./SystemHealthCard";
 export { TodaySnapshotCard } from "./TodaySnapshotCard";
 export { TopupPerformanceChart } from "./TopupPerformanceChart";
