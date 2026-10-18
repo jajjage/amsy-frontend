@@ -552,7 +552,7 @@ export function CreateProductForm() {
                       <SelectValue placeholder="Select supplier" />
                     </SelectTrigger>
                     <SelectContent>
-                      {suppliers.map((s) => (
+                      {suppliers.filter((s) => s.supplierKind !== "parent" && s.isRoutable !== false).map((s) => (
                         <SelectItem key={s.id} value={s.id}>
                           {s.name}
                         </SelectItem>

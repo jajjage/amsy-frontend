@@ -143,6 +143,11 @@ const navItems = [
     icon: PercentIcon,
   },
   {
+    title: "Private Prices",
+    href: "/admin/dashboard/private-pricing",
+    icon: PercentIcon,
+  },
+  {
     title: "Products",
     href: "/admin/dashboard/products",
     icon: PackageIcon,
@@ -176,6 +181,11 @@ const navItems = [
     title: "Roles",
     href: "/admin/dashboard/roles",
     icon: ShieldIcon,
+  },
+  {
+    title: "App Updates",
+    href: "/admin/dashboard/app-updates",
+    icon: PackageIcon,
   },
 ];
 

@@ -66,7 +66,7 @@ export function ProductCard({
 
   // Calculate base selling price (with markup)
   const actualMarkup = markupPercent < 1 ? markupPercent : markupPercent / 100;
-  const baseSellingPrice = product.resolvedPrice
+  const baseSellingPrice = typeof product.resolvedPrice === "number"
     ? faceValue
     : supplierPrice + supplierPrice * actualMarkup;
 

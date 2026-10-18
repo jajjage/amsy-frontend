@@ -2,6 +2,7 @@ import { ResellerApiPurchaseAnalyticsSection } from "@/components/features/admin
 import { ResellerApiCircuitBreakersPanel } from "@/components/features/admin/reseller-api/ResellerApiCircuitBreakersPanel";
 import { ResellerApiDeliveriesTable } from "@/components/features/admin/reseller-api/ResellerApiDeliveriesTable";
 import { ResellerApiOverviewCards } from "@/components/features/admin/reseller-api/ResellerApiOverviewCards";
+import { UnifiedApiOperationsDashboard } from "@/components/features/admin/reseller-api/UnifiedApiOperationsDashboard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -23,6 +24,7 @@ export default function AdminResellerApiPage() {
         </Button>
       </div>
 
+      <UnifiedApiOperationsDashboard />
       <ResellerApiPurchaseAnalyticsSection />
       <ResellerApiOverviewCards />
       <ResellerApiDeliveriesTable />

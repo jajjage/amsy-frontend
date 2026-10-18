@@ -113,3 +113,20 @@ export interface AdminResellerPurchaseAnalytics {
     successRate: string;
   };
 }
+
+export interface UnifiedApiOperationsOverviewParams {
+  fromDate?: string;
+  toDate?: string;
+  source?: "all" | "legacy_reseller" | "v1_api";
+}
+
+export interface UnifiedApiOperationsOverview {
+  period: { fromDate: string; toDate: string };
+  totals: { requests: number; amount: number; resolved: number; successRate: string };
+  status: Record<string, number>;
+  amounts: Record<string, number>;
+  bySource: Record<string, number>;
+  byNetwork: Record<string, { requests: number; success: number; amount: number }>;
+  latency: { averageMs: number; p95Ms: number; oldestPendingAt: string | null };
+  alerts: Array<{ severity: "warning" | "critical"; code: string; message: string }>;
+}

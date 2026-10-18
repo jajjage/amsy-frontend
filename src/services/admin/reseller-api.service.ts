@@ -9,6 +9,8 @@ import {
   ResellerApiCircuitBreakersResponse,
   ResetCircuitBreakerPayload,
   ToggleCircuitBreakerPayload,
+  UnifiedApiOperationsOverview,
+  UnifiedApiOperationsOverviewParams,
 } from "@/types/admin/reseller-api.types";
 
 
@@ -201,6 +203,15 @@ export const adminResellerApiService = {
       ...response.data,
       data: mapPurchaseAnalytics(response.data?.data ?? {}),
     };
+  },
+
+  getUnifiedOperationsOverview: async (
+    params?: UnifiedApiOperationsOverviewParams
+  ): Promise<ApiResponse<UnifiedApiOperationsOverview>> => {
+    const response = await apiClient.get<ApiResponse<UnifiedApiOperationsOverview>>(
+      `${BASE_PATH}/operations/overview`, { params }
+    );
+    return response.data;
   },
 };
 

@@ -113,7 +113,7 @@ export function convertDenomAmountToNumber(
  * and finally the legacy denomAmount fallback.
  */
 export function getResolvedProductPrice(product: ResellerProduct): number | null {
-  if (typeof product.resolvedPrice === "number" && product.resolvedPrice > 0) {
+  if (typeof product.resolvedPrice === "number" && Number.isFinite(product.resolvedPrice) && product.resolvedPrice >= 0) {
     return product.resolvedPrice;
   }
 

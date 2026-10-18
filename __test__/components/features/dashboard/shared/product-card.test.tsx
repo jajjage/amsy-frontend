@@ -36,6 +36,12 @@ const createMockProduct = (overrides: Partial<Product> = {}): Product => ({
 
 describe("ProductCard Component", () => {
   describe("Without Offer", () => {
+    it("displays an explicit zero private price instead of falling back to face value", () => {
+      render(<ProductCard product={createMockProduct({ resolvedPrice: 0 })} />);
+
+      expect(screen.getByText("₦0")).toBeInTheDocument();
+    });
+
     it("should render product without offer badge", () => {
       const product = createMockProduct();
 

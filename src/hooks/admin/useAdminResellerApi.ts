@@ -6,6 +6,7 @@ import {
   ResellerApiCallbackDeliveriesQueryParams,
   ResetCircuitBreakerPayload,
   ToggleCircuitBreakerPayload,
+  UnifiedApiOperationsOverviewParams,
 } from "@/types/admin/reseller-api.types";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -19,6 +20,8 @@ const resellerApiKeys = {
   purchaseAnalyticsOverview: (
     params?: AdminResellerPurchaseAnalyticsQueryParams
   ) => [...resellerApiKeys.all, "purchase-analytics-overview", params] as const,
+  unifiedOperationsOverview: (params?: UnifiedApiOperationsOverviewParams) =>
+    [...resellerApiKeys.all, "unified-operations-overview", params] as const,
 };
 
 export function useResellerApiCallbacksOverview() {
@@ -76,6 +79,17 @@ export function useAdminResellerPurchaseAnalyticsOverview(
   return useQuery({
     queryKey: resellerApiKeys.purchaseAnalyticsOverview(params),
     queryFn: () => adminResellerApiService.getPurchaseAnalyticsOverview(params),
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useAdminUnifiedApiOperationsOverview(
+  params?: UnifiedApiOperationsOverviewParams
+) {
+  return useQuery({
+    queryKey: resellerApiKeys.unifiedOperationsOverview(params),
+    queryFn: () => adminResellerApiService.getUnifiedOperationsOverview(params),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   });

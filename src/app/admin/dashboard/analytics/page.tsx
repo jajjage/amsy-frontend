@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ProductAnalyticsSection,
   GmvOverviewCard,
   KeyMetricsCards,
   OperatorPerformanceCard,
@@ -60,6 +61,7 @@ export default function AnalyticsPage() {
 
       {/* Today's Snapshot - Hero Card */}
       <TodaySnapshotCard />
+      <ProductAnalyticsSection />
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">

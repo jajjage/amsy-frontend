@@ -108,7 +108,7 @@ export function SupplierListTable() {
                 suppliers.map((supplier: Supplier) => (
                   <TableRow key={supplier.id}>
                     <TableCell className="font-medium">
-                      {supplier.name}
+                      {supplier.name} <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{supplier.supplierKind === "parent" ? `${supplier.protocolKey || "protocol"} parent` : supplier.parentSupplierId ? "child" : "standalone"}</span>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-mono">

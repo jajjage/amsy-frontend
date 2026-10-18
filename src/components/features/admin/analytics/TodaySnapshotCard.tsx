@@ -7,6 +7,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   DollarSign,
+  ReceiptText,
   TrendingUp,
   Users,
   Wallet,
@@ -55,8 +56,8 @@ export function TodaySnapshotCard() {
           <Skeleton className="h-6 w-40" />
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+            {[1, 2, 3, 4, 5].map((i) => (
               <Skeleton key={i} className="h-24" />
             ))}
           </div>
@@ -76,7 +77,7 @@ export function TodaySnapshotCard() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           {/* Transactions */}
           <div className="bg-muted/50 space-y-1 rounded-lg p-4">
             <p className="text-muted-foreground text-xs tracking-wide uppercase">
@@ -156,6 +157,21 @@ export function TodaySnapshotCard() {
             </p>
             <p className="text-xs text-blue-600">
               +{formatNumber(snapshot?.newUsers || 0)} new today
+            </p>
+          </div>
+
+          <div className="bg-muted/50 space-y-1 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <ReceiptText className="h-4 w-4 text-indigo-600" />
+              <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                Bills paid
+              </p>
+            </div>
+            <p className="text-2xl font-bold">
+              {formatNumber(snapshot?.billPayments?.successful || 0)}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {formatCurrency(snapshot?.billPayments?.volume || 0)} successful volume
             </p>
           </div>
         </div>

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useCreateSupplier } from "@/hooks/admin/useAdminSuppliers";
+import { useAdminSuppliers, useCreateSupplier } from "@/hooks/admin/useAdminSuppliers";
 import { ArrowLeft, Eye, EyeOff, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,6 +27,8 @@ import { useState } from "react";
 export function CreateSupplierForm() {
   const router = useRouter();
   const createMutation = useCreateSupplier();
+  const { data: suppliersData } = useAdminSuppliers();
+  const suppliers = suppliersData?.data?.suppliers || [];
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -45,6 +47,10 @@ export function CreateSupplierForm() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [priorityInt, setPriorityInt] = useState(1);
   const [isActive, setIsActive] = useState(true);
+  const [supplierKind, setSupplierKind] = useState<"standalone" | "parent" | "child">("standalone");
+  const [protocolKey, setProtocolKey] = useState<"adex_v1" | "msorg_v1">("adex_v1");
+  const [parentSupplierId, setParentSupplierId] = useState("");
+  const isProtocolParent = supplierKind === "parent";
 
   const normalizedSlug = slug.trim().toLowerCase();
   const isVtpass = normalizedSlug === "vtpass";
@@ -75,9 +81,10 @@ export function CreateSupplierForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !slug || !apiBase) {
+    if (!name || !slug || (!isProtocolParent && !apiBase)) {
       return;
     }
+    if (supplierKind === "child" && !parentSupplierId) return;
 
     if (
       isVtpass &&
@@ -99,7 +106,7 @@ export function CreateSupplierForm() {
       return;
     }
 
-    if (!isVtpass && !isMssDataSub && !apiKey) {
+    if (!isProtocolParent && !isVtpass && !isMssDataSub && !apiKey) {
       return;
     }
 
@@ -107,8 +114,11 @@ export function CreateSupplierForm() {
       {
         name,
         slug,
-        apiBase,
-        apiKey: resolvedApiKey,
+        ...(isProtocolParent ? { supplierKind: "parent" as const, protocolKey } : {
+          apiBase,
+          apiKey: resolvedApiKey,
+          parentSupplierId: supplierKind === "child" ? parentSupplierId : null,
+        }),
         priorityInt,
         isActive,
       },
@@ -169,6 +179,10 @@ export function CreateSupplierForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2"><Label htmlFor="supplierKind">Supplier relationship</Label><Select value={supplierKind} onValueChange={(value) => setSupplierKind(value as typeof supplierKind)}><SelectTrigger id="supplierKind"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="standalone">Standalone supplier</SelectItem><SelectItem value="child">Child supplier using a protocol</SelectItem><SelectItem value="parent">Protocol parent (company)</SelectItem></SelectContent></Select></div>
+              {isProtocolParent ? <div className="space-y-2"><Label htmlFor="protocolKey">Protocol</Label><Select value={protocolKey} onValueChange={(value) => setProtocolKey(value as typeof protocolKey)}><SelectTrigger id="protocolKey"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="adex_v1">ADEX compatible</SelectItem><SelectItem value="msorg_v1">MSORG compatible</SelectItem></SelectContent></Select></div> : supplierKind === "child" ? <div className="space-y-2"><Label htmlFor="parentSupplierId">Protocol parent</Label><Select value={parentSupplierId} onValueChange={setParentSupplierId}><SelectTrigger id="parentSupplierId"><SelectValue placeholder="Choose protocol parent" /></SelectTrigger><SelectContent>{suppliers.filter(supplier => supplier.supplierKind === "parent").map(supplier => <SelectItem key={supplier.id} value={supplier.id}>{supplier.name} · {supplier.protocolKey}</SelectItem>)}</SelectContent></Select></div> : null}
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="name">Supplier Name</Label>
                 <Input
@@ -196,7 +210,7 @@ export function CreateSupplierForm() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            {!isProtocolParent && <div className="space-y-2">
               <Label htmlFor="apiBase">API Base URL</Label>
               <Input
                 id="apiBase"
@@ -206,9 +220,9 @@ export function CreateSupplierForm() {
                 className="font-mono"
                 required
               />
-            </div>
+            </div>}
 
-            {isVtpass ? (
+            {isProtocolParent ? <p className="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">This parent defines the compatible API contract. Add child suppliers under it to configure each provider endpoint and credential set.</p> : isVtpass ? (
               <div className="space-y-3 rounded-lg border p-4">
                 <div>
                   <Label>VTpass Authentication</Label>
