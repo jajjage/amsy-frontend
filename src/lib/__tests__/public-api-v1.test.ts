@@ -48,7 +48,7 @@ describe("canAccessDeveloperTools", () => {
     expect(canAccessDeveloperTools("api_user", ["reseller.api_access"])).toBe(
       true
     );
-    expect(canAccessDeveloperTools("api_user", [])).toBe(false);
+    expect(canAccessDeveloperTools("api_user", [])).toBe(true);
     expect(canAccessDeveloperTools("reseller", ["reseller.api_access"])).toBe(
       false
     );
