@@ -1,11 +1,8 @@
 "use client";
 
 import {
-  ProductAnalyticsSection,
-  GmvOverviewCard,
   KeyMetricsCards,
   OperatorPerformanceCard,
-  RevenueCard,
   SensitiveAnalyticsGate,
   TodaySnapshotCard,
   TopupPerformanceChart,
@@ -13,17 +10,13 @@ import {
   TransactionTypeChart,
   UserOverviewCard,
   UserSegmentsCard,
-  WalletOverviewCard,
 } from "@/components/features/admin/analytics";
 import { BillPaymentAnalyticsSection } from "@/components/features/admin/bills/BillPaymentAnalyticsSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart3,
-  Boxes,
-  DollarSign,
   ReceiptText,
   Users,
-  Wallet,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { authService } from "@/services/auth.service";
@@ -88,26 +81,14 @@ export default function AnalyticsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full max-w-5xl grid-cols-6">
+        <TabsList className="grid w-full max-w-3xl grid-cols-3">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="revenue" className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Revenue
-          </TabsTrigger>
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
-          </TabsTrigger>
-          <TabsTrigger value="wallet" className="flex items-center gap-2">
-            <Wallet className="h-4 w-4" />
-            Wallet
-          </TabsTrigger>
-          <TabsTrigger value="products" className="flex items-center gap-2">
-            <Boxes className="h-4 w-4" />
-            Products
           </TabsTrigger>
           <TabsTrigger value="bills" className="flex items-center gap-2">
             <ReceiptText className="h-4 w-4" />
@@ -164,17 +145,6 @@ export default function AnalyticsPage() {
           </SensitiveAnalyticsGate>
         </TabsContent>
 
-        {/* Revenue Tab */}
-        <TabsContent value="revenue" className="mt-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <RevenueCard />
-            <GmvOverviewCard />
-          </div>
-
-          {/* Operator Performance for revenue context */}
-          <OperatorPerformanceCard />
-        </TabsContent>
-
         {/* Users Tab */}
         <TabsContent value="users" className="mt-6 space-y-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -182,27 +152,6 @@ export default function AnalyticsPage() {
             <UserSegmentsCard />
           </div>
         </TabsContent>
-
-        {/* Wallet Tab */}
-        <TabsContent value="wallet" className="mt-6 space-y-6">
-          {/* Wallet Overview - Full Width */}
-          <WalletOverviewCard />
-
-          {/* GMV vs Transaction comparison */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <GmvOverviewCard />
-            <TransactionOverviewCard />
-          </div>
-
-          {/* Additional visualizations */}
-          <TopupPerformanceChart />
-        </TabsContent>
-
-        {/* Products Tab */}
-        <TabsContent value="products" className="mt-6 space-y-6">
-          <ProductAnalyticsSection />
-        </TabsContent>
-
 
         <TabsContent value="bills" className="mt-6 space-y-6">
           <BillPaymentAnalyticsSection />
