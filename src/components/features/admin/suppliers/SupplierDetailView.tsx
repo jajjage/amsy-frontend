@@ -162,7 +162,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
         data: {
           name: editName,
           slug: editSlug,
-          apiBase: supplier?.supplierKind === "parent" ? undefined : editApiBase,
+          apiBase: supplier?.protocolKey && !supplier.parentSupplierId ? undefined : editApiBase,
           ...(isVtpass
             ? vtpassKeyPayload && { apiKey: vtpassKeyPayload }
             : isMssDataSub
@@ -170,7 +170,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
               : editApiKey && { apiKey: editApiKey }),
           priorityInt: editPriority,
           isActive: editIsActive,
-          ...(supplier?.supplierKind === "parent"
+          ...(supplier?.protocolKey && !supplier.parentSupplierId
             ? { protocolKey: editProtocolKey }
             : { parentSupplierId: editParentSupplierId || null }),
         },
@@ -239,7 +239,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
               </DialogDescription>
             </DialogHeader>
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1">
-              {supplier.supplierKind === "parent" ? <div className="space-y-2"><Label htmlFor="editProtocolKey">Protocol</Label><Select value={editProtocolKey} onValueChange={(value) => setEditProtocolKey(value as typeof editProtocolKey)}><SelectTrigger id="editProtocolKey"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="adex_v1">ADEX compatible</SelectItem><SelectItem value="msorg_v1">MSORG compatible</SelectItem></SelectContent></Select></div> : <div className="space-y-2"><Label htmlFor="editParentSupplierId">Protocol parent</Label><Select value={editParentSupplierId || "standalone"} onValueChange={(value) => setEditParentSupplierId(value === "standalone" ? "" : value)}><SelectTrigger id="editParentSupplierId"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="standalone">Standalone (no parent)</SelectItem>{allSuppliers.filter(item => item.supplierKind === "parent" && item.id !== supplier.id && item.isActive).map(item => <SelectItem key={item.id} value={item.id}>{item.name} · {item.protocolKey}</SelectItem>)}</SelectContent></Select></div>}
+              {supplier.protocolKey && !supplier.parentSupplierId ? <div className="space-y-2"><Label htmlFor="editProtocolKey">Protocol</Label><Select value={editProtocolKey} onValueChange={(value) => setEditProtocolKey(value as typeof editProtocolKey)}><SelectTrigger id="editProtocolKey"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="adex_v1">ADEX compatible</SelectItem><SelectItem value="msorg_v1">MSORG compatible</SelectItem></SelectContent></Select></div> : <div className="space-y-2"><Label htmlFor="editParentSupplierId">Protocol parent</Label><Select value={editParentSupplierId || "standalone"} onValueChange={(value) => setEditParentSupplierId(value === "standalone" ? "" : value)}><SelectTrigger id="editParentSupplierId"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="standalone">Standalone (no parent)</SelectItem>{allSuppliers.filter(item => Boolean(item.protocolKey) && !item.parentSupplierId && item.id !== supplier.id && item.isActive).map(item => <SelectItem key={item.id} value={item.id}>{item.name} · {item.protocolKey}</SelectItem>)}</SelectContent></Select></div>}
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -464,7 +464,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
         <CardContent className="space-y-4">
           <InfoRow label="Supplier ID" value={supplier.id} mono />
           <InfoRow label="Slug" value={supplier.slug} mono />
-          <InfoRow label="Relationship" value={supplier.supplierKind === "parent" ? `Protocol parent (${supplier.protocolKey})` : supplier.parentSupplierId ? `Child of ${allSuppliers.find(item => item.id === supplier.parentSupplierId)?.name || "protocol parent"}` : "Standalone supplier"} />
+          <InfoRow label="Relationship" value={supplier.protocolKey && !supplier.parentSupplierId ? `Protocol parent (${supplier.protocolKey})` : supplier.parentSupplierId ? `Child of ${allSuppliers.find(item => item.id === supplier.parentSupplierId)?.name || "protocol parent"}` : "Standalone supplier"} />
           <InfoRow label="API Base URL" value={supplier.apiBase} mono />
           <InfoRow label="API Key" value={supplier.apiKey || "••••••••"} mono />
           <InfoRow label="Priority" value={supplier.priorityInt.toString()} />
