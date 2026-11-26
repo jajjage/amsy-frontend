@@ -50,6 +50,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
   const allSuppliers = suppliersData?.data?.suppliers || [];
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editSlug, setEditSlug] = useState("");
   const [editApiBase, setEditApiBase] = useState("");
   const [editApiKey, setEditApiKey] = useState("");
   const [editVtpassAuthType, setEditVtpassAuthType] = useState<
@@ -80,6 +81,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
   const handleEdit = () => {
     if (supplier) {
       setEditName(supplier.name);
+      setEditSlug(supplier.slug);
       setEditApiBase(supplier.apiBase);
       setEditApiKey("");
       setEditVtpassAuthType("apiKey");
@@ -159,6 +161,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
         supplierId,
         data: {
           name: editName,
+          slug: editSlug,
           apiBase: supplier?.supplierKind === "parent" ? undefined : editApiBase,
           ...(isVtpass
             ? vtpassKeyPayload && { apiKey: vtpassKeyPayload }
@@ -236,7 +239,7 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
               </DialogDescription>
             </DialogHeader>
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1">
-              {supplier.supplierKind === "parent" ? <div className="space-y-2"><Label htmlFor="editProtocolKey">Protocol</Label><Select value={editProtocolKey} onValueChange={(value) => setEditProtocolKey(value as typeof editProtocolKey)}><SelectTrigger id="editProtocolKey"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="adex_v1">ADEX compatible</SelectItem><SelectItem value="msorg_v1">MSORG compatible</SelectItem></SelectContent></Select></div> : <div className="space-y-2"><Label htmlFor="editParentSupplierId">Protocol parent</Label><Select value={editParentSupplierId || "standalone"} onValueChange={(value) => setEditParentSupplierId(value === "standalone" ? "" : value)}><SelectTrigger id="editParentSupplierId"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="standalone">Standalone (no parent)</SelectItem>{allSuppliers.filter(item => item.supplierKind === "parent" && item.id !== supplier.id).map(item => <SelectItem key={item.id} value={item.id}>{item.name} · {item.protocolKey}</SelectItem>)}</SelectContent></Select></div>}
+              {supplier.supplierKind === "parent" ? <div className="space-y-2"><Label htmlFor="editProtocolKey">Protocol</Label><Select value={editProtocolKey} onValueChange={(value) => setEditProtocolKey(value as typeof editProtocolKey)}><SelectTrigger id="editProtocolKey"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="adex_v1">ADEX compatible</SelectItem><SelectItem value="msorg_v1">MSORG compatible</SelectItem></SelectContent></Select></div> : <div className="space-y-2"><Label htmlFor="editParentSupplierId">Protocol parent</Label><Select value={editParentSupplierId || "standalone"} onValueChange={(value) => setEditParentSupplierId(value === "standalone" ? "" : value)}><SelectTrigger id="editParentSupplierId"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="standalone">Standalone (no parent)</SelectItem>{allSuppliers.filter(item => item.supplierKind === "parent" && item.id !== supplier.id && item.isActive).map(item => <SelectItem key={item.id} value={item.id}>{item.name} · {item.protocolKey}</SelectItem>)}</SelectContent></Select></div>}
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -244,6 +247,11 @@ export function SupplierDetailView({ supplierId }: SupplierDetailViewProps) {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input id="slug" value={editSlug} onChange={(event) => setEditSlug(event.target.value.toLowerCase().replace(/\s+/g, "-"))} placeholder="supplier-slug" />
+                <p className="text-xs text-muted-foreground">Slugs must be unique within this tenant. Inactive suppliers can be renamed and reused safely.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="apiBase">API Base URL</Label>

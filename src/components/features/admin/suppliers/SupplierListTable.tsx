@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -26,6 +27,34 @@ export function SupplierListTable() {
   const updateMutation = useUpdateSupplier();
 
   const suppliers = data?.data?.suppliers || [];
+  const activeSuppliers = suppliers.filter((supplier) => supplier.isActive);
+  const inactiveSuppliers = suppliers.filter((supplier) => !supplier.isActive);
+
+  const renderTable = (rows: Supplier[]) => (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead><TableHead>Slug</TableHead><TableHead>API Base</TableHead>
+            <TableHead>Relationship</TableHead><TableHead>Priority</TableHead><TableHead>Active</TableHead><TableHead className="w-[80px]">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.length === 0 ? <TableRow><TableCell colSpan={7} className="py-8 text-center">No suppliers in this view</TableCell></TableRow> : rows.map((supplier) => (
+            <TableRow key={supplier.id}>
+              <TableCell className="font-medium">{supplier.name}</TableCell>
+              <TableCell><Badge variant="outline" className="font-mono">{supplier.slug}</Badge></TableCell>
+              <TableCell className="max-w-[200px] truncate font-mono text-sm text-muted-foreground">{supplier.apiBase || "—"}</TableCell>
+              <TableCell><Badge variant="secondary">{supplier.supplierKind === "parent" ? `${supplier.protocolKey || "protocol"} parent` : supplier.parentSupplierId ? "child" : "standalone"}</Badge></TableCell>
+              <TableCell><Badge variant={supplier.priorityInt <= 1 ? "default" : "secondary"}>{supplier.priorityInt}</Badge></TableCell>
+              <TableCell><Switch checked={supplier.isActive} onCheckedChange={() => handleToggleActive(supplier)} disabled={updateMutation.isPending} /></TableCell>
+              <TableCell><Button variant="ghost" size="icon-sm" asChild><Link href={`/admin/dashboard/suppliers/${supplier.id}`}><Eye className="h-4 w-4" /></Link></Button></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
 
   const handleToggleActive = (supplier: Supplier) => {
     updateMutation.mutate({
@@ -85,71 +114,14 @@ export function SupplierListTable() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>API Base</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Active</TableHead>
-                <TableHead className="w-[80px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {suppliers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center">
-                    No suppliers found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                suppliers.map((supplier: Supplier) => (
-                  <TableRow key={supplier.id}>
-                    <TableCell className="font-medium">
-                      {supplier.name} <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{supplier.supplierKind === "parent" ? `${supplier.protocolKey || "protocol"} parent` : supplier.parentSupplierId ? "child" : "standalone"}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="font-mono">
-                        {supplier.slug}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground max-w-[200px] truncate font-mono text-sm">
-                      {supplier.apiBase}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          supplier.priorityInt <= 1 ? "default" : "secondary"
-                        }
-                      >
-                        {supplier.priorityInt}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={supplier.isActive}
-                        onCheckedChange={() => handleToggleActive(supplier)}
-                        disabled={updateMutation.isPending}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon-sm" asChild>
-                        <Link
-                          href={`/admin/dashboard/suppliers/${supplier.id}`}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
+        <Tabs defaultValue="active">
+          <TabsList>
+            <TabsTrigger value="active">Active ({activeSuppliers.length})</TabsTrigger>
+            <TabsTrigger value="inactive">Inactive ({inactiveSuppliers.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="active" className="mt-4">{renderTable(activeSuppliers)}</TabsContent>
+          <TabsContent value="inactive" className="mt-4">{renderTable(inactiveSuppliers)}</TabsContent>
+        </Tabs>
         {suppliers.length > 0 && (
           <div className="text-muted-foreground mt-4 flex items-center justify-between text-sm">
             <span>

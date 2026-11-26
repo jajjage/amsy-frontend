@@ -18,7 +18,7 @@ export interface Supplier {
   parentSupplierId?: string | null;
   protocolKey?: "adex_v1" | "msorg_v1" | null;
   protocolFamilyId?: string | null;
-  supplierKind?: "parent" | "child";
+  supplierKind?: "parent" | "child" | "standalone";
   isRoutable?: boolean;
 }
 
@@ -54,11 +54,12 @@ export interface CreateSupplierRequest {
   parentSupplierId?: string | null;
   protocolKey?: "adex_v1" | "msorg_v1" | null;
   protocolFamilyId?: string | null;
-  supplierKind?: "parent" | "child";
+  supplierKind?: "parent" | "child" | "standalone";
 }
 
 export interface UpdateSupplierRequest {
   name?: string;
+  slug?: string;
   apiBase?: string;
   apiKey?: string;
   priorityInt?: number;
