@@ -4,7 +4,8 @@ import {
   useUpdateSupplier,
 } from "@/hooks/admin/useAdminSuppliers";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ReactNode } from "react";
 import { Mock, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -56,7 +57,7 @@ describe("SupplierListTable", () => {
     });
   });
 
-  it("should display suppliers list", () => {
+  it("should display suppliers list", async () => {
     (useAdminSuppliers as Mock).mockReturnValue({
       data: {
         data: {
@@ -71,12 +72,12 @@ describe("SupplierListTable", () => {
     render(<SupplierListTable />, { wrapper: createWrapper() });
 
     expect(screen.getByText("Supplier One")).toBeInTheDocument();
-    expect(screen.getByText("Supplier Two")).toBeInTheDocument();
-    expect(screen.getByText("supplier-one")).toBeInTheDocument();
-    expect(screen.getByText("supplier-two")).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("tab", { name: /inactive/i }));
+    expect(await screen.findByText("Supplier Two")).toBeInTheDocument();
+    expect(await screen.findByText("supplier-two")).toBeInTheDocument();
   });
 
-  it("should display priority badges", () => {
+  it("should display priority badges", async () => {
     (useAdminSuppliers as Mock).mockReturnValue({
       data: {
         data: {
@@ -91,7 +92,8 @@ describe("SupplierListTable", () => {
     render(<SupplierListTable />, { wrapper: createWrapper() });
 
     expect(screen.getByText("1")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("tab", { name: /inactive/i }));
+    expect(await screen.findByText("2")).toBeInTheDocument();
   });
 
   it("should show loading skeleton", () => {
@@ -119,7 +121,7 @@ describe("SupplierListTable", () => {
 
     render(<SupplierListTable />, { wrapper: createWrapper() });
 
-    expect(screen.getByText("No suppliers found")).toBeInTheDocument();
+    expect(screen.getByText("No suppliers in this view")).toBeInTheDocument();
   });
 
   it("should show error state", () => {
